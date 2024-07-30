@@ -1,12 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { startDatabase } from './src/database/startDb';
+import { ClienteRepository } from './src/database/repository/ClienteRepository';
+import { AuthProvider } from './src/context/AuthContext';
+import Main from './main';
 
+// startDatabase()
+// Addresdb.create({})
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+  
+  return (<AuthProvider>
+    <Main />
+  </AuthProvider>
   );
 }
 
