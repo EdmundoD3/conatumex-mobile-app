@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
+import { BaseError } from '../error/typeErrors';
 
-const db =  SQLite.openDatabaseAsync('conatumex');
+const db = SQLite.openDatabaseAsync('conatumex');
 
 const stateTable = `CREATE TABLE IF NOT EXISTS state (
   id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -98,16 +99,33 @@ const cuentaTable = `CREATE TABLE IF NOT EXISTS cuenta (
   FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
-// Inicialización de todas las tablas
 const initTables = `${stateTable} ${coloniaTable} ${cityTable} ${addressTable} ${vendedorTable} ${statusTable} ${clienteTable} ${pagosTable} ${productosTable} ${compraTable} ${cuentaTable}`;
+const deleteTables = `DROP TABLE IF EXISTS address;
+  DROP TABLE IF EXISTS state;
+  DROP TABLE IF EXISTS colonia;
+  DROP TABLE IF EXISTS city;
+  DROP TABLE IF EXISTS address;
+  DROP TABLE IF EXISTS vendedor;
+  DROP TABLE IF EXISTS status;
+  DROP TABLE IF EXISTS cliente;
+  DROP TABLE IF EXISTS pagos;
+  DROP TABLE IF EXISTS productos;
+  DROP TABLE IF EXISTS compra;
+  DROP TABLE IF EXISTS cuenta;`
 
-  const startDatabase = async () => {
-//     await (await db).execAsync(`DROP TABLE IF EXISTS address;
-// DROP TABLE IF EXISTS cliente;
-// DROP TABLE IF EXISTS compra;
-// DROP TABLE IF EXISTS city;`)
-//     console.log("la tabla se borro");
+const startDatabase = async () => {
+  try {
     await (await db).execAsync(initTables);
+  } catch (error) {
+    throw new BaseError(error)
   }
-  
-export {startDatabase} 
+}
+const deleteDatabase = async () => {
+  try {
+    await (await db).execAsync(deleteTables)
+  } catch (error) {
+    throw new BaseError(error)
+  }
+}
+
+export { startDatabase, deleteDatabase }

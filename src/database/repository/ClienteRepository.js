@@ -19,8 +19,12 @@ class Status extends IOneDataSQLRepository {
 }
 
 class ClienteRepository extends IRepository {
-  static async get({ name, lastname, email, phone, date, comments, status_id, vendedora_id }) {
-
+  static async getByName({ name }) {
+    const sql = `
+      SELECT * cliente WHERE name = ?;
+    `;
+    const queryParams = [name]
+    return (await (await db).runAsync(sql, queryParams))
   }
 
   static async getAll({ limit = 10, offset = 0 }) {
@@ -55,7 +59,6 @@ class ClienteRepository extends IRepository {
     const statusIds = uniqueData(clientes, "status")
     const vendedorIds = uniqueData(clientes, "vendedor")
     console.log({ statusIds, vendedorIds });
-
   }
   static async updateById({ id, }) {
     throw new Error("implementar updateById")

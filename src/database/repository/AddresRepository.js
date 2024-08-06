@@ -6,6 +6,20 @@ import verifyIdsData from '../helper/verifyIdsData';
 // https://docs.expo.dev/versions/latest/sdk/sqlite/
 const db = SQLite.openDatabaseAsync('conatumex');
 
+function querySelect({ dataClauses, tableName }) {
+  let query = `SELECT * FROM ${tableName};`
+  const queryParams = [];
+  const whereClauses = [];
+  dataClauses.forEach(({ clauses, params }) => {
+    if (params !== undefined && params !== null) {
+      whereClauses.push(clauses);
+      queryParams.push(params);
+    }
+  });
+  if (queryParams.length <= 0) return null
+  if (whereClauses.length > 0) query += ' WHERE ' + whereClauses.join(' AND ');
+  return query
+}
 
 class StateRepository extends IOneDataSQLRepository {
   constructor(state) {
@@ -26,34 +40,20 @@ class CityRepository extends IOneDataSQLRepository {
 class AddresRepository {
   constructor() {
   }
-  static async get({ cliente_id, street, noaddress, betweenstreet, referencia, observation, stateId, coloniaId, cityId }) {
-    let query = `SELECT * FROM address;`
-    const queryParams = [];
-    const whereClauses = [];
+  static async get({ street, noaddress, betweenstreet, referencia, observation }) {
+
 
     // Definimos los dataClauses con las propiedades correspondientes
     const dataClauses = [
-      { clauses: 'cliente_id = ?', params: cliente_id },
       { clauses: 'street = ?', params: street },
       { clauses: 'noaddress = ?', params: noaddress },
       { clauses: 'betweenstreet = ?', params: betweenstreet },
       { clauses: 'referencia = ?', params: referencia },
       { clauses: 'observation = ?', params: observation },
-      { clauses: 'state_id = ?', params: stateId },
-      { clauses: 'colonia_id = ?', params: coloniaId },
-      { clauses: 'city_id = ?', params: cityId }
     ];
-
-    dataClauses.forEach(({ clauses, params }) => {
-      if (params !== undefined && params !== null) {
-        whereClauses.push(clauses);
-        queryParams.push(params);
-      }
-    });
-    if (queryParams.length <= 0) return null
-    if (whereClauses.length > 0) query += ' WHERE ' + whereClauses.join(' AND ');
-
-    return (await db).getFirstAsync(query, queryParams)
+    const query = querySelect({ dataClauses, tableName: "address" })
+    if (query) return (await db).getFirstAsync(query, queryParams)
+    return []
   }
 
   static async getAll({ limit = 10, offset = 0 }) {

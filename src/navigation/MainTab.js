@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View } from 'react-native';
-import SettingsScreen from './SettingScreen';
+import SettingsNav from './SettingNav';
+import ClientSearch from '../screen/Client/clientSearch';
 
 const Tab = createBottomTabNavigator();
 
@@ -12,13 +13,12 @@ function HomeScreen() {
   );
 }
 
-
-
 export default function MainTabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Client" component={ClientSearch} />
+      <Tab.Screen name="Settings" component={SettingsNav} />
     </Tab.Navigator>
   );
 }

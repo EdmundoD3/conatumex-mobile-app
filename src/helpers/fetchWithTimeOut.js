@@ -1,4 +1,4 @@
-import { TimeoutError } from "../error/typeErrors";
+import { NetworkError, TimeoutError } from "../error/typeErrors";
 
 function fetchWithTimeout(url, options, timeout = 5000) {
   return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ function fetchWithTimeout(url, options, timeout = 5000) {
       })
       .catch(err => {
         clearTimeout(timer);
-        reject(err);
+        reject(new NetworkError(err));
       });
   });
 }

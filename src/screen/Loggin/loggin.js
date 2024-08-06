@@ -1,52 +1,17 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Button, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAuthContext } from '../context/AuthContext';
-import { AuthenticationError } from '../error/typeErrors';
-import errorHandler from '../error/errorHandler';
-import { fetchWithTimeout } from '../helpers/fetchWithTimeOut';
-import Loading from '../components/loading';
-import { eventManager } from '../helpers/eventManager';
-
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
-const handleLoginEvent = async ({ username, password, login, setLoad }) => {
-  setLoad(true)
-  try {
-    const body = JSON.stringify({ username, password })
-    const url = `${apiUrl}login`
-    const data = await fetchWithTimeout(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      }, body
-    }).then(res => {
-      // if(res.status==401)
-      if (!res?.ok) throw new AuthenticationError(`Error al iniciar sesion intente de nuevo`);
-      return res.json()
-    })
-    if (!data) throw new DataExistsError(`Error al iniciar sesion intente de nuevo`)
-    if (data.error) {
-      throw new AuthenticationError(`Error al iniciar sesion intente de nuevo`)
-    }
-    setLoad(false)
-    console.log(data);
-    login(data)
-  } catch (error) {
-    setLoad(false)
-    console.log({ error });
-    errorHandler(error)
-  }
-}
+import { useAuthContext } from '../../context/AuthContext';
+import { eventManager } from '../../helpers/eventManager';
+import handleLoginEvent from './helpers/handleLoginEvent';
 
 export default function Login() {
   const [userData, setUserData] = useState({ username: '', password: '' })
   const [load, setLoad] = useState(false)
   const { login } = useAuthContext()
 
-  const handleLogin = eventManager(() =>
-    handleLoginEvent({ ...userData, login, setLoad })
-  )
+  const loginArguments = { ...userData, login, setLoad }
+  const handleLogin = eventManager(handleLoginEvent)
 
   return (
     <LinearGradient
@@ -75,7 +40,7 @@ export default function Login() {
             <ActivityIndicator size="large" color="#0000ff" />
           </TouchableOpacity>
           :
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <TouchableOpacity style={styles.button} onPress={()=>handleLogin(loginArguments)}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
         }
