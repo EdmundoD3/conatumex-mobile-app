@@ -8,8 +8,9 @@ class BaseError extends Error {
 class AuthenticationError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'AuthenticationError';
-    this.userMessage = 'Ha ocurrido un error, intente más tarde';
+    this.name = 'Error al iniciar sesión';
+    this.userMessage = message.includes("username or password") ? 'Ingrese un username o password validos' : 'Intente de nuevo';
+
   }
 }
 
@@ -82,6 +83,6 @@ export {
   ExecutionInProgressError,
   DataExistsError,
   MissingDataError, NetworkError,
-  ValidationError, LoginError, 
-  TimeoutError,TokenExpiredError
+  ValidationError, LoginError,
+  TimeoutError, TokenExpiredError
 }

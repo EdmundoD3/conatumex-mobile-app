@@ -34,7 +34,10 @@ class ClienteRepository extends IRepository {
   static async getByNameId(cliente_id) {
     throw new Error("implementar getByClienteId")
   }
-
+  static async saveNewData(clients=[]){
+    clients.map(({name})=>[`('${name}')`,`()`])
+    throw new Error('Implementar saveNewClient en ClientRepository')
+  }
   static async create({ name, email, phone, date = new Date(), comments, status, vendedor }) {
     const sql = `
       INSERT INTO cliente (

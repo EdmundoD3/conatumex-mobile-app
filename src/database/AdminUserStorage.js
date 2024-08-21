@@ -1,12 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DataExistsError, ValidationError } from '../error/typeErrors';
+import { DataExistsError, TokenExpiredError, ValidationError } from '../error/typeErrors';
 import { UserSession } from '../models/UserSession';
+import { fetchWithTimeout } from '../helpers/fetchWithTimeOut';
+import { URL_REFRESH_TOKEN } from '../constants/url';
+import { keyStorage } from '../constants/keyStorage';
 
 
-const keyStorage = {
-  user: "user",
-  theme: "theme"
-}
 
 export class AdminUserStorage {
   static async get() {
@@ -38,9 +37,45 @@ export class AdminUserStorage {
 
   static async out() {
     try {
-      return await AsyncStorage.removeItem(keyStorage.user);
+      await AsyncStorage.removeItem(keyStorage.user);
+      await AsyncStorage.removeItem(keyStorage.lastSendDataDate);
+      await AsyncStorage.removeItem(keyStorage.lastUpdateDate);
     } catch (error) {
       throw new DataExistsError('Error removing user data from storage');
+    }
+  }
+
+  static async getToken() {
+    try {
+      const { token } = await this.get();
+      if (!token.hasAlreadyExpired()) return token;
+      const { token: newToken } = await this.get();
+      return newToken;
+    } catch (error) {
+      this.out()
+      throw new TokenExpiredError(error)
+    }
+  }
+
+  static async refreshToken() {
+    try {
+      const userSesion = await this.get()
+      const { refreshToken, key } = userSesion
+      if (refreshToken.hasAlreadyExpired()) throw new TokenExpiredError("La sesion a expirado, inicia sesion de nuevo")
+      const { data } = await fetchWithTimeout(URL_REFRESH_TOKEN, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "token": refreshToken.token,
+          key
+        }
+      })
+      const token = data.token
+      await this.set({ ...userSesion, token })
+    } catch (error) {
+      this.out()
+      if (error instanceof Error) throw new TokenExpiredError(error)
+      throw error
     }
   }
 }

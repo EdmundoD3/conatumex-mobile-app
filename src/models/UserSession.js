@@ -1,7 +1,10 @@
 class Token {
   constructor({token, expiryDate}) {
     this.token = token
-    this.expiryDate = expiryDate
+    this.expiryDate = new Date(expiryDate) 
+  }
+  hasAlreadyExpired (){
+    return  this.expiryDate > new Date()
   }
 }
 class UserSession {
