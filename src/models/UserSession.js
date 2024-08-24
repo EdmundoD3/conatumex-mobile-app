@@ -6,6 +6,9 @@ class Token {
   hasAlreadyExpired (){
     return  this.expiryDate > new Date()
   }
+  getToken(){
+    return this.token
+  }
 }
 class UserSession {
   constructor({ username="", user="", token={}, key="", refreshToken={} }) {

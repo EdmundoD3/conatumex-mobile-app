@@ -1,7 +1,7 @@
 import { AuthProvider } from './src/context/AuthContext';
 import Main from './main';
+import { startDatabase } from './src/database/startDb';
 
-// startDatabase()
 // Addresdb.create({})
 export default function App() {
   // useEffect(() => {

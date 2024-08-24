@@ -3,8 +3,9 @@ import errorHandler from '../../../error/errorHandler';
 import { fetchWithTimeout } from '../../../helpers/fetchWithTimeOut';
 import getSessionId from './getSessionId';
 import { URL_LOGIN } from '../../../constants/url';
+import { startDatabase } from '../../../database/startDb';
 
-const handleLoginEvent = async ({ username, password, login, setLoad }) => {
+const handleLoginEvent = async ({ username, password, login,logout, setLoad }) => {
   setLoad(true);
   try {
     const key = getSessionId();
@@ -29,8 +30,10 @@ const handleLoginEvent = async ({ username, password, login, setLoad }) => {
       throw new AuthenticationError(`Error al iniciar sesión: intente de nuevo`);
     }
     login({ ...data.data, key });
+    await startDatabase();
   } catch (error) {
     errorHandler(error);
+    logout()
   } finally {
     setLoad(false);
   }

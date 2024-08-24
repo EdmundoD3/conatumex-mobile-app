@@ -8,9 +8,9 @@ import handleLoginEvent from './helpers/handleLoginEvent';
 export default function Login() {
   const [userData, setUserData] = useState({ username: '', password: '' })
   const [load, setLoad] = useState(false)
-  const { login } = useAuthContext()
+  const { login, logout } = useAuthContext()
 
-  const loginArguments = { ...userData, login, setLoad }
+  const loginArguments = { ...userData, login,logout, setLoad }
   const handleLogin = eventManager(handleLoginEvent)
 
   return (

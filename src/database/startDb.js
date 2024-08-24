@@ -1,7 +1,10 @@
-import * as SQLite from 'expo-sqlite';
-import { BaseError } from '../error/typeErrors';
+import * as SQLite from "expo-sqlite";
+import { BaseError } from "../error/typeErrors";
+import SyncDateHandler from "./updateDate";
+import { URL_GET_ALL_PURCHASES } from "../constants/url";
+import { AdminUserStorage } from "./AdminUserStorage";
 
-const db = SQLite.openDatabaseAsync('conatumex');
+const db = SQLite.openDatabaseAsync("conatumex");
 
 const stateTable = `CREATE TABLE IF NOT EXISTS state (
   id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -41,7 +44,7 @@ const vendedorTable = `CREATE TABLE IF NOT EXISTS vendedor (
 );`;
 
 const statusTable = `CREATE TABLE IF NOT EXISTS status (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id TEXT PRIMARY KEY,
   status TEXT NOT NULL UNIQUE
 );`;
 
@@ -54,7 +57,6 @@ const clienteTable = `CREATE TABLE IF NOT EXISTS cliente (
   date DATE NOT NULL,
   comments TEXT,
   status_id INTEGER NOT NULL,
-  vendedor_id INTEGER NOT NULL,
   FOREIGN KEY (status_id) REFERENCES status(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (vendedor_id) REFERENCES vendedor(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
@@ -67,31 +69,33 @@ const pagosTable = `CREATE TABLE IF NOT EXISTS pagos (
   FOREIGN KEY (cuenta_id) REFERENCES cuenta(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
-const productosTable = `CREATE TABLE IF NOT EXISTS productos (
+const productosTable = `CREATE TABLE IF NOT EXISTS producto (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nombre TEXT NOT NULL UNIQUE,
-  contado INTEGER NOT NULL,
-  credito INTEGER NOT NULL
+  contado INTEGER,
+  credito INTEGER
 );`;
 
 const compraTable = `CREATE TABLE IF NOT EXISTS compra (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  mongodb_id TEXT,
-  productos_id INTEGER NOT NULL,
+  producto_id INTEGER NOT NULL,
   cuenta_id INTEGER NOT NULL,
   cantidad INTEGER NOT NULL,
-  FOREIGN KEY (productos_id) REFERENCES productos(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (producto_id) REFERENCES producto(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (cuenta_id) REFERENCES cuenta(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
 const cuentaTable = `CREATE TABLE IF NOT EXISTS cuenta (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  mongodb_id TEXT,
+  vendedor_id INTEGER NOT NULL,
   cliente_id INTEGER NOT NULL,
   credito VARCHAR(12) NOT NULL,
   contado VARCHAR(12),
   abono VARCHAR(12) NOT NULL,
   date DATE NOT NULL,
   contado_date DATE NOT NULL,
+  next_collection_date DATE NOT NULL,
   ischange INTEGER NOT NULL DEFAULT 0,
   no_cuenta VARCHAR(12),
   is_active INTEGER NOT NULL DEFAULT 1,
@@ -111,21 +115,53 @@ const deleteTables = `DROP TABLE IF EXISTS address;
   DROP TABLE IF EXISTS pagos;
   DROP TABLE IF EXISTS productos;
   DROP TABLE IF EXISTS compra;
-  DROP TABLE IF EXISTS cuenta;`
+  DROP TABLE IF EXISTS cuenta;`;
+
+const url = URL_GET_ALL_PURCHASES;
+const fetchInit = async () => {
+  const token = await AdminUserStorage.getToken(); 
+  if (!token) throw new Error("La session no se pudo iniciar");
+  const { data } = await fetch(url, {
+    method: "GET",
+    headers: {
+      token: `${token.getToken()}`,
+    },
+  }).then((response) => {
+    console.log(response);
+    if (!response.ok) {
+      throw new Error("Network response was not ok " + response.statusText);
+    }
+    return response.json();
+  });
+  return data;
+};
+const saveInit = (client=[]) => {
+  client.forEach(({ customer, purchase }) => {
+    console.log(customer);
+    console.log(purchase);
+  });
+};
 
 const startDatabase = async () => {
   try {
     await (await db).execAsync(initTables);
+    const lastUpdateDate = await SyncDateHandler.getLastUpdateDate();
+    if (!lastUpdateDate) {
+      const data = await fetchInit();
+      const { dateUpdate,client } = data;
+      // SyncDateHandler.saveLastUpdateDate(new Date(dateUpdate))
+      saveInit(client)
+    }
   } catch (error) {
-    throw new BaseError(error)
+    throw new BaseError(error);
   }
-}
+};
 const deleteDatabase = async () => {
   try {
-    await (await db).execAsync(deleteTables)
+    await (await db).execAsync(deleteTables);
   } catch (error) {
-    throw new BaseError(error)
+    throw new BaseError(error);
   }
-}
+};
 
-export { startDatabase, deleteDatabase }
+export { startDatabase, deleteDatabase };
