@@ -7,17 +7,17 @@ import { AdminUserStorage } from "./AdminUserStorage";
 const db = SQLite.openDatabaseAsync("conatumex");
 
 const stateTable = `CREATE TABLE IF NOT EXISTS state (
-  id INTEGER PRIMARY KEY AUTOINCREMENT, 
+  id TEXT PRIMARY KEY,
   state TEXT NOT NULL UNIQUE
 );`;
 
 const coloniaTable = `CREATE TABLE IF NOT EXISTS colonia (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id TEXT PRIMARY KEY,
   colonia TEXT NOT NULL UNIQUE
 );`;
 
 const cityTable = `CREATE TABLE IF NOT EXISTS city (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id TEXT PRIMARY KEY,
   city TEXT NOT NULL UNIQUE
 );`;
 
@@ -29,9 +29,9 @@ const addressTable = `CREATE TABLE IF NOT EXISTS address (
   betweenstreet TEXT,
   referencia TEXT,
   observation TEXT,
-  state_id INTEGER NOT NULL,
-  colonia_id INTEGER NOT NULL,
-  city_id INTEGER NOT NULL,
+  state_id TEXT NOT NULL,
+  colonia_id TEXT NOT NULL,
+  city_id TEXT NOT NULL,
   FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (state_id) REFERENCES state(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (colonia_id) REFERENCES colonia(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -39,7 +39,7 @@ const addressTable = `CREATE TABLE IF NOT EXISTS address (
 );`;
 
 const vendedorTable = `CREATE TABLE IF NOT EXISTS vendedor (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id TEXT PRIMARY KEY,
   vendedor TEXT NOT NULL UNIQUE
 );`;
 
@@ -56,7 +56,7 @@ const clienteTable = `CREATE TABLE IF NOT EXISTS cliente (
   phone TEXT,
   date DATE NOT NULL,
   comments TEXT,
-  status_id INTEGER NOT NULL,
+  status_id TEXT NOT NULL,
   FOREIGN KEY (status_id) REFERENCES status(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (vendedor_id) REFERENCES vendedor(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
@@ -88,7 +88,7 @@ const compraTable = `CREATE TABLE IF NOT EXISTS compra (
 const cuentaTable = `CREATE TABLE IF NOT EXISTS cuenta (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   mongodb_id TEXT,
-  vendedor_id INTEGER NOT NULL,
+  vendedor_id TEXT NOT NULL,
   cliente_id INTEGER NOT NULL,
   credito VARCHAR(12) NOT NULL,
   contado VARCHAR(12),

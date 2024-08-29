@@ -1,34 +1,33 @@
 import * as SQLite from "expo-sqlite";
+import SingleValueTableBase from "../base/singleValueTableBase";
 
 const db = SQLite.openDatabaseAsync("conatumex");
 
-class StatusTable {
-    constructor({status,statusId}){
-      this.status = status
-      this.statusId = statusId
-    }
-    async get(){
-      const sql = `
-        SELECT * status WHERE status = ?;
-      `;
-      const queryParams = [this.status];
-      return await (await db).getFirstAsync(sql, queryParams);
-    }
-    async save(){
-      const query = `
-      INSERT INTO status (
-        id,satus
-      ) VALUES (?, ?)
-    `;
-      const values = [this.statusId,this.status];
-      return await (await db).runAsync(query, values)
-    }
-    async getOrSave(){
-      const status = await this.get()
-      if(status) return status
-      this.save()
-      return await this.get()
-    }
+class StatusTable extends SingleValueTableBase {
+  constructor({ id, status }) {
+    super("status", { id });
+    this.status = status;
   }
 
-export {StatusTable }
+  async save() {
+    // Guarda el dato en la tabla 'status'
+    return await super.save(["id", "status"], [this.id, this.status]);
+  }
+
+  async getOrSave() {
+    // Obtiene el dato o lo guarda si no existe
+    return await super.getOrSave(
+      "status",
+      this.status,
+      ["id", "status"],
+      [this.id, this.status]
+    );
+  }
+
+  static async saveAll(statuses = []) {
+    // Guarda todos los datos en la tabla 'status'
+    return await SingleValueTableBase.saveAll("status", statuses, ["id", "status"]);
+  }
+}
+
+export { StatusTable }

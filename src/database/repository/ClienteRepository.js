@@ -6,9 +6,22 @@ import { MissingDataError } from "../../error/typeErrors";
 // https://docs.expo.dev/versions/latest/sdk/sqlite/
 const db = SQLite.openDatabaseAsync("conatumex");
 
-class Vendedor extends IOneDataSQLRepository {
-  constructor(vendedor) {
-    super("vendedor", "vendedor", vendedor);
+class VendedorTable extends BaseTable {
+  constructor({ id, vendedor }) {
+    super('vendedor', { id });
+    this.vendedor = vendedor;
+  }
+
+  async save() {
+    return await super.save(['id', 'vendedor'], [this.id, this.vendedor]);
+  }
+
+  async getOrSave() {
+    return await super.getOrSave('vendedor', this.vendedor, ['id', 'vendedor'], [this.id, this.vendedor]);
+  }
+
+  static async saveAll(vendedores = []) {
+    return await BaseTable.saveAll('vendedor', vendedores, ['id', 'vendedor']);
   }
 }
 
