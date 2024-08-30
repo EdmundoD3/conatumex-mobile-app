@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataExistsError, TokenExpiredError, ValidationError } from '../error/typeErrors';
 import { UserSession } from '../models/UserSession';
-import { fetchWithTimeout } from '../helpers/fetchWithTimeOut';
-import { URL_REFRESH_TOKEN } from '../constants/url';
 import { keyStorage } from '../constants/keyStorage';
+import { fetchRefreshToken } from '../services/auth';
 
 
 
@@ -61,16 +60,13 @@ export class AdminUserStorage {
     try {
       const userSesion = await this.get()
       const { refreshToken, key } = userSesion
-      if (refreshToken.hasAlreadyExpired()) throw new TokenExpiredError("La sesion a expirado, inicia sesion de nuevo")
-      const { data } = await fetchWithTimeout(URL_REFRESH_TOKEN, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "token": refreshToken.token,
-          key
-        }
-      })
+
+      if (refreshToken.hasAlreadyExpired()) 
+        throw new TokenExpiredError("La sesion a expirado, inicia sesion de nuevo")
+
+      const { data } = await fetchRefreshToken({token:refreshToken.token ,key})
       const token = data.token
+      
       await this.set({ ...userSesion, token })
     } catch (error) {
       this.out()

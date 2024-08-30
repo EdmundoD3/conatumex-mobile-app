@@ -1,35 +1,17 @@
-import { AuthenticationError } from '../../../error/typeErrors';
 import errorHandler from '../../../error/errorHandler';
-import { fetchWithTimeout } from '../../../helpers/fetchWithTimeOut';
 import getSessionId from './getSessionId';
-import { URL_LOGIN } from '../../../constants/url';
 import { startDatabase } from '../../../database/startDb';
+import { fetchLogin } from '../../../services/auth';
 
-const handleLoginEvent = async ({ username, password, login,logout, setLoad }) => {
+const handleLoginEvent = async ({ username, password, login, logout, setLoad }) => {
   setLoad(true);
   try {
     const key = getSessionId();
-    const body = JSON.stringify({ username, password, key });
+    const body = { username, password, key };
 
-    const response = await fetchWithTimeout(URL_LOGIN, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body
-    });
+    const { data } = await fetchLogin(body);
 
-    if (!response.ok) {
-      const {message} = await response.json()
-      throw new AuthenticationError(message);
-    }
-
-    const data = await response.json();
-
-    if (!data || data.error) {
-      throw new AuthenticationError(`Error al iniciar sesión: intente de nuevo`);
-    }
-    login({ ...data.data, key });
+    login({ ...data, key });
     await startDatabase();
   } catch (error) {
     errorHandler(error);

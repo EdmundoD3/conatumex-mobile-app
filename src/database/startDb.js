@@ -23,10 +23,10 @@ const cityTable = `CREATE TABLE IF NOT EXISTS city (
 
 const addressTable = `CREATE TABLE IF NOT EXISTS address (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  cliente_id INTEGER NOT NULL,
+  cliente_id TEXT NOT NULL,
   street TEXT,
-  noaddress TEXT,
-  betweenstreet TEXT,
+  no_address TEXT,
+  between_street TEXT,
   referencia TEXT,
   observation TEXT,
   state_id TEXT NOT NULL,
@@ -49,8 +49,7 @@ const statusTable = `CREATE TABLE IF NOT EXISTS status (
 );`;
 
 const clienteTable = `CREATE TABLE IF NOT EXISTS cliente (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  mongodb_id TEXT,
+  id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT,
   phone TEXT,
@@ -79,15 +78,14 @@ const productosTable = `CREATE TABLE IF NOT EXISTS producto (
 const compraTable = `CREATE TABLE IF NOT EXISTS compra (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   producto_id INTEGER NOT NULL,
-  cuenta_id INTEGER NOT NULL,
+  cuenta_id TEXT NOT NULL,
   cantidad INTEGER NOT NULL,
   FOREIGN KEY (producto_id) REFERENCES producto(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (cuenta_id) REFERENCES cuenta(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
 const cuentaTable = `CREATE TABLE IF NOT EXISTS cuenta (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  mongodb_id TEXT,
+  id TEXT PRIMARY KEY,
   vendedor_id TEXT NOT NULL,
   cliente_id INTEGER NOT NULL,
   credito VARCHAR(12) NOT NULL,

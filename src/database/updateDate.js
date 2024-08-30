@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { keyStorage } from "../constants/keyStorage";
-import { ValidationError } from "../error/typeErrors";
+import { DataExistsError, ValidationError } from "../error/typeErrors";
 
 class SyncDateHandler {
   static async getLastUpdateDate() {
     const lastUpdateDate = await AsyncStorage.getItem(keyStorage.lastUpdateDate);
+    if (!lastUpdateDate) throw new DataExistsError("Error al obtener los nuevos datos")
     return lastUpdateDate ? new Date(lastUpdateDate) : null;
   }
 
