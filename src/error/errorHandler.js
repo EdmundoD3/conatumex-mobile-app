@@ -14,7 +14,7 @@ const showAlert = (error) => {
 };
 
 const errorHandler = (error) =>{
-  console.log("errorHandler:",{error});
+  console.log("errorHandler:",error);
   showAlert(error)
 }
 

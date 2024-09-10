@@ -2,14 +2,17 @@ import { URL_GET_ALL_PURCHASES, URL_GET_LAST_DATE_UPDATE, URL_UPDATE_PURCHASE } 
 import SyncDateHandler from "../database/updateDate";
 import { AuthenticationError } from "../error/typeErrors";
 import { fetchWithTimeout } from "../helpers/fetchWithTimeOut";
+import { Token } from "../models/UserSession";
 
-const fetchGetAllPurchases = async ({ token }) => {
+
+const fetchGetAllPurchases = async ({ token = new Token({ token: "", expiryDate: new Date }) }) => {
   try {
+    const tokenheader = token.getToken()
     const response = await fetchWithTimeout(URL_GET_ALL_PURCHASES, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        "token": `${tokenheader}`,
       },
     });
 
@@ -28,19 +31,20 @@ const fetchGetAllPurchases = async ({ token }) => {
 
     return data;
   } catch (error) {
-    console.error('Error en fetchGetAllPurchases:', error); 
     throw error;
   }
 };
 
-const fetchLastDateUpdate = async ({ token }) => {
+const fetchLastDateUpdate = async ({ token = new Token({ token: "", expiryDate: new Date }) }) => {
   try {
     const lastDateUpdate = await SyncDateHandler.getLastUpdateDate()
+    const tokenheader = token.getToken()
+
     const response = await fetchWithTimeout(URL_GET_LAST_DATE_UPDATE, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        "token": `${tokenheader}`,
         lastDateUpdate
       },
     });
@@ -64,17 +68,18 @@ const fetchLastDateUpdate = async ({ token }) => {
   }
 };
 
-const fetchLastDateUpdateee = async ({ token, data }) => {
+const fetchUpdatePurchase = async ({ token = new Token({ token: "", expiryDate: new Date }), data }) => {
   try {
+    const tokenheader = token.getToken()
     const lastDateUpdate = await SyncDateHandler.getLastUpdateDate()
     const response = await fetchWithTimeout(URL_UPDATE_PURCHASE, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        "token": `${tokenheader}`,
         lastDateUpdate
       },
-      body: {data}
+      body: { data }
     });
 
     if (!response.ok) {
@@ -92,9 +97,8 @@ const fetchLastDateUpdateee = async ({ token, data }) => {
 
     return data;
   } catch (error) {
-    console.error('Error en fetchGetAllPurchases:', error); 
     throw error;
   }
 };
 
-export {fetchGetAllPurchases, fetchLastDateUpdate }
+export { fetchGetAllPurchases, fetchLastDateUpdate, fetchUpdatePurchase }

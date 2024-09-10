@@ -1,8 +1,10 @@
 import * as SQLite from "expo-sqlite";
 import { BaseError } from "../error/typeErrors";
 import SyncDateHandler from "./updateDate";
-import { URL_GET_ALL_PURCHASES } from "../constants/url";
 import { AdminUserStorage } from "./AdminUserStorage";
+import { fetchGetAllPurchases } from "../services/clients";
+import { CustomerRequestSquema } from "./squemas/customer";
+import { PurchaseRequestSquema } from "./squemas/purchase";
 
 const db = SQLite.openDatabaseAsync("conatumex");
 
@@ -29,18 +31,13 @@ const addressTable = `CREATE TABLE IF NOT EXISTS address (
   between_street TEXT,
   referencia TEXT,
   observation TEXT,
-  state_id TEXT NOT NULL,
+  state_id TEXT,
   colonia_id TEXT NOT NULL,
   city_id TEXT NOT NULL,
   FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (state_id) REFERENCES state(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (colonia_id) REFERENCES colonia(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY (city_id) REFERENCES city(id) ON DELETE NO ACTION ON UPDATE NO ACTION
-);`;
-
-const vendedorTable = `CREATE TABLE IF NOT EXISTS vendedor (
-  id TEXT PRIMARY KEY,
-  vendedor TEXT NOT NULL UNIQUE
 );`;
 
 const statusTable = `CREATE TABLE IF NOT EXISTS status (
@@ -56,21 +53,20 @@ const clienteTable = `CREATE TABLE IF NOT EXISTS cliente (
   date DATE NOT NULL,
   comments TEXT,
   status_id TEXT NOT NULL,
-  FOREIGN KEY (status_id) REFERENCES status(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  FOREIGN KEY (vendedor_id) REFERENCES vendedor(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+  FOREIGN KEY (status_id) REFERENCES status(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
 const pagosTable = `CREATE TABLE IF NOT EXISTS pagos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   cuenta_id INTEGER NOT NULL,
-  pago VARCHAR(10) NOT NULL,
+  pago INTEGER NOT NULL,
   date DATETIME NOT NULL,
   FOREIGN KEY (cuenta_id) REFERENCES cuenta(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
 const productosTable = `CREATE TABLE IF NOT EXISTS producto (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  nombre TEXT NOT NULL UNIQUE,
+  producto TEXT NOT NULL UNIQUE,
   contado INTEGER,
   credito INTEGER
 );`;
@@ -84,21 +80,28 @@ const compraTable = `CREATE TABLE IF NOT EXISTS compra (
   FOREIGN KEY (cuenta_id) REFERENCES cuenta(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
+const vendedorTable = `CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  user TEXT NOT NULL UNIQUE
+);`;
+
 const cuentaTable = `CREATE TABLE IF NOT EXISTS cuenta (
   id TEXT PRIMARY KEY,
   vendedor_id TEXT NOT NULL,
-  cliente_id INTEGER NOT NULL,
+  cobrador_id TEXT NOT NULL,
+  cliente_id TEXT NOT NULL,
   credito VARCHAR(12) NOT NULL,
   contado VARCHAR(12),
   abono VARCHAR(12) NOT NULL,
   date DATE NOT NULL,
   contado_date DATE NOT NULL,
   next_collection_date DATE NOT NULL,
-  ischange INTEGER NOT NULL DEFAULT 0,
+  is_change INTEGER NOT NULL DEFAULT 0,  -- Corregido a is_change
   no_cuenta VARCHAR(12),
   is_active INTEGER NOT NULL DEFAULT 1,
-  is_change INTEGER NOT NULL,
-  FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+  FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (vendedor_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY (cobrador_id) REFERENCES users(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );`;
 
 const initTables = `${stateTable} ${coloniaTable} ${cityTable} ${addressTable} ${vendedorTable} ${statusTable} ${clienteTable} ${pagosTable} ${productosTable} ${compraTable} ${cuentaTable}`;
@@ -106,52 +109,55 @@ const deleteTables = `DROP TABLE IF EXISTS address;
   DROP TABLE IF EXISTS state;
   DROP TABLE IF EXISTS colonia;
   DROP TABLE IF EXISTS city;
-  DROP TABLE IF EXISTS address;
   DROP TABLE IF EXISTS vendedor;
   DROP TABLE IF EXISTS status;
   DROP TABLE IF EXISTS cliente;
   DROP TABLE IF EXISTS pagos;
-  DROP TABLE IF EXISTS productos;
+  DROP TABLE IF EXISTS producto;  -- Corregido a producto (en lugar de productos)
   DROP TABLE IF EXISTS compra;
   DROP TABLE IF EXISTS cuenta;`;
 
-const url = URL_GET_ALL_PURCHASES;
 const fetchInit = async () => {
-  const token = await AdminUserStorage.getToken(); 
+  const token = await AdminUserStorage.getToken();
   if (!token) throw new Error("La session no se pudo iniciar");
-  const { data } = await fetch(url, {
-    method: "GET",
-    headers: {
-      token: `${token.getToken()}`,
-    },
-  }).then((response) => {
-    console.log(response);
-    if (!response.ok) {
-      throw new Error("Network response was not ok " + response.statusText);
-    }
-    return response.json();
-  });
+
+  const { data } = await fetchGetAllPurchases({ token })
   return data;
 };
-const saveInit = (client=[]) => {
-  client.forEach(({ customer, purchase }) => {
-    console.log(customer);
-    console.log(purchase);
-  });
+
+const saveInit = async (client = []) => {
+  try {
+    await Promise.all(
+      client.flatMap(({ customer, purchase }) => {
+        const newCustomer = new CustomerRequestSquema(customer);
+        const newPurchase = new PurchaseRequestSquema({...purchase,customerId:customer.id});
+        return [newCustomer.save(), newPurchase.save()];
+      })
+    );
+  } catch (error) {
+    throw error
+  }
+
+  console.log("Await")
+  console.log(await (await db).getAllAsync("select * from cliente"))
+  console.log(await (await db).getAllAsync("select * from address"))
+  console.log(await (await db).getAllAsync("select * from colonia"))
+  console.log(await (await db).getAllAsync("select * from city"))
 };
 
 const startDatabase = async () => {
   try {
     await (await db).execAsync(initTables);
+
     const lastUpdateDate = await SyncDateHandler.getLastUpdateDate();
     if (!lastUpdateDate) {
-      const data = await fetchInit();
-      const { dateUpdate,client } = data;
+      const { dateUpdate, client } = await fetchInit();
       // SyncDateHandler.saveLastUpdateDate(new Date(dateUpdate))
       saveInit(client)
     }
   } catch (error) {
-    throw new BaseError(error);
+    if (error instanceof Error) throw new BaseError(error);
+    throw error
   }
 };
 const deleteDatabase = async () => {

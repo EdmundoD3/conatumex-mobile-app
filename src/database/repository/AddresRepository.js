@@ -1,129 +1,292 @@
-import * as SQLite from 'expo-sqlite';
-import { DataExistsError, MissingDataError } from '../../error/typeErrors';
-import { IOneDataSQLRepository } from './Interface';
-import verifyIdsData from '../helper/verifyIdsData';
+import SingleValueTableBase from "./base/singleValueTableBase";
+import { createInsert, createUpdate, TableColumn, whereParams } from "./helpers/paramsPush";
+import * as SQLite from "expo-sqlite";
 
 // https://docs.expo.dev/versions/latest/sdk/sqlite/
-const db = SQLite.openDatabaseAsync('conatumex');
+const db = SQLite.openDatabaseAsync("conatumex");
 
-function querySelect({ dataClauses, tableName }) {
-  let query = `SELECT * FROM ${tableName};`
-  const queryParams = [];
-  const whereClauses = [];
-  dataClauses.forEach(({ clauses, params }) => {
-    if (params !== undefined && params !== null) {
-      whereClauses.push(clauses);
-      queryParams.push(params);
+class StateTable extends SingleValueTableBase {
+  constructor({ id, state }) {
+    super("state", { id });
+    this.state = state;
+  }
+
+  async save() {
+    return await super.save(["id", "state"], [this.id, this.state]);
+  }
+
+  async getOrSave() {
+    return await super.getOrSave(
+      ["id", "state"],
+      [this.id, this.state]
+    );
+  }
+
+  static async saveAll(states = []) {
+    return await SingleValueTableBase.saveAll("state", states, ["id", "state"]);
+  }
+}
+
+class ColoniaTable extends SingleValueTableBase {
+  constructor({ id, colonia }) {
+    super("colonia", { id });
+    this.colonia = colonia;
+  }
+
+  async save() {
+    return await super.save(["id", "colonia"], [this.id, this.colonia]);
+  }
+
+  async getOrSave() {
+    return await super.getOrSave(
+      ["id", "colonia"],
+      [this.id, this.colonia]
+    );
+  }
+
+  static async saveAll(colonias = []) {
+    return await SingleValueTableBase.saveAll("colonia", colonias, [
+      "id",
+      "colonia",
+    ]);
+  }
+}
+
+class CityTable extends SingleValueTableBase {
+  constructor({ id, city }) {
+    super("city", { id });
+    this.city = city;
+  }
+
+  async save() {
+    return await super.save(["id", "city"], [this.id, this.city]);
+  }
+
+  async getOrSave() {
+    return await super.getOrSave(
+      ["id", "city"],
+      [this.id, this.city]
+    );
+  }
+
+  static async saveAll(cities = []) {
+    return await SingleValueTableBase.saveAll("city", cities, ["id", "city"]);
+  }
+}
+
+class AddressRepository {
+  constructor({
+    clienteId = "",
+    street = "",
+    noAddress = "",
+    betweenStreet = "",
+    referencia = "",
+    observation = "",
+    stateId = "",
+    coloniaId = "",
+    cityId = "",
+  }) {
+    this.clienteId = clienteId;
+    this.street = street;
+    this.noAddress = noAddress;
+    this.betweenStreet = betweenStreet;
+    this.referencia = referencia;
+    this.observation = observation;
+    this.stateId = stateId;
+    this.coloniaId = coloniaId;
+    this.cityId = cityId;
+  }
+  static async get({
+    id = "",
+    clienteId = "",
+    street = "",
+    noAddress = "",
+    betweenStreet = "",
+    referencia = "",
+    observation = "",
+    stateId = "",
+    coloniaId = "",
+    cityId = "",
+  }) {
+    const {params,whereParams} = this.createWhereParams({
+      id,
+      clienteId,
+      street,
+      noAddress,
+      betweenStreet,
+      referencia,
+      observation,
+      stateId,
+      coloniaId,
+      cityId,
+    })
+    return await (await db).getAllAsync(whereParams, params);
+  }
+  static async getByColum(column, value) {
+    const sql = `
+        SELECT * FROM address WHERE ${column} = ?;
+      `;
+    const queryParams = [value];
+    try {
+      return await (await db).getAllAsync(sql, queryParams);
+    } catch (error) {
+      throw error;
     }
-  });
-  if (queryParams.length <= 0) return null
-  if (whereClauses.length > 0) query += ' WHERE ' + whereClauses.join(' AND ');
-  return query
-}
-
-class StateRepository extends IOneDataSQLRepository {
-  constructor(state) {
-    super("state", "state", state)
   }
-}
-class ColoniaRepository extends IOneDataSQLRepository {
-  constructor(colonia) {
-    super("colonia", "colonia", colonia)
+  static async getByClienteId(clienteId) {
+    const sql = `
+        SELECT * FROM address WHERE cliente_id = ?;
+      `;
+    const queryParams = [clienteId];
+    try {
+      return await (await db).getFirstAsync(sql, queryParams);
+    } catch (error) {
+      throw error;
+    }
   }
-}
-class CityRepository extends IOneDataSQLRepository {
-  constructor(city) {
-    super("city", "city", city)
-  }
-}
-
-class AddresRepository {
-  constructor() {
-  }
-  static async get({ street, noaddress, betweenstreet, referencia, observation }) {
-
-
-    // Definimos los dataClauses con las propiedades correspondientes
-    const dataClauses = [
-      { clauses: 'street = ?', params: street },
-      { clauses: 'noaddress = ?', params: noaddress },
-      { clauses: 'betweenstreet = ?', params: betweenstreet },
-      { clauses: 'referencia = ?', params: referencia },
-      { clauses: 'observation = ?', params: observation },
-    ];
-    const query = querySelect({ dataClauses, tableName: "address" })
-    if (query) return (await db).getFirstAsync(query, queryParams)
-    return []
+  static async getById(id) {
+    return this.getByColum("id", id)
   }
 
-  static async getAll({ limit = 10, offset = 0 }) {
-    const sql = `SELECT * FROM address LIMIT ? OFFSET ?`;
-    return (await db).getAllAsync(sql, [limit, offset])
-  }
-
-  static async getByClienteId(cliente_id) {
-    return (await db).getFirstAsync(`SELECT * FROM address WHERE cliente_id = ?`, [cliente_id]);
-  }
-
-  static async create(addres = {}) {
-    const { cliente_id, street, noaddress, betweenstreet, referencia, observation,
-      state, colonia, city } = addres
+  async save() {
+    const { query, queryParams } = AddressRepository.createInsert(this)
 
     try {
-      if (!cliente_id) throw new MissingDataError("falta id referencia del cliente")
-      const clientAddres = await this.getByClienteId(cliente_id)
-      if (clientAddres) throw new DataExistsError("cliente ya existe")
-      const { cityId, coloniaId, stateId } = await getStateColoniaAndCity({ state, colonia, city });
-      const query = `
-      INSERT INTO address (
-        cliente_id, street, noaddress, betweenstreet, referencia, observation, state_id, colonia_id, city_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-      const values = [cliente_id, street || null, noaddress || null, betweenstreet || null,
-        referencia || null, observation || null, stateId, coloniaId, cityId];
-      await (await db).runAsync(query, values)
-      const thisAddress = await this.get({ ...addres, stateId, coloniaId, cityId })
-      return thisAddress
-
+      return await (await db).runAsync(query, queryParams);
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
-  static async updateById({ id, state }) {
-    const sql = `UPDATE addres SET ${IAddresData.prototype.columnName} = ? WHERE id = ?`;
-    return (await db).runAsync(sql, [state, id])
+  static async saveAll(items = [{
+    id,
+    clienteId,
+    street,
+    noAddress,
+    betweenStreet,
+    referencia,
+    observation,
+    stateId,
+    coloniaId,
+    cityId,
+  }]) {
+    try {
+      return await Promise.all(
+        items.map((item) => { 
+          const newAddress = new AddressRepository(item) 
+          return newAddress.save()
+        })
+      );
+    } catch (error) {
+      throw error;
+    }
   }
+  static async updateById(id,{
+    clienteId,
+    street,
+    noAddress,
+    betweenStreet,
+    referencia,
+    observation,
+    stateId,
+    coloniaId,
+    cityId,
+  }){
+    const {query,queryParams}=AddressRepository.createUpdate("id = ?",{
+      clienteId,
+      street,
+      noAddress,
+      betweenStreet,
+      referencia,
+      observation,
+      stateId,
+      coloniaId,
+      cityId,
+    })
+    queryParams.push(id)
+    return await (await db).runAsync(query,queryParams)
+  }
+  static createWhereParams({
+    id = "",
+    clienteId = "",
+    street = "",
+    noAddress = "",
+    betweenStreet = "",
+    referencia = "",
+    observation = "",
+    stateId = "",
+    coloniaId = "",
+    cityId = "",
+  }, conditional = "and") {
+    const preParams = [
+      new TableColumn("id", id, conditional),
+      new TableColumn("cliente_id", clienteId, conditional),
+      new TableColumn("street", street, conditional),
+      new TableColumn("no_address", noAddress, conditional),
+      new TableColumn("between_street", betweenStreet, conditional),
+      new TableColumn("referencia", referencia, conditional),
+      new TableColumn("observation", observation, conditional),
+      new TableColumn("state_id", stateId, conditional),
+      new TableColumn("colonia_id", coloniaId, conditional),
+      new TableColumn("city_id", cityId, conditional),
+    ];
+    return whereParams(preParams);
+  }
+  static createInsert({
+    id,
+    clienteId,
+    street,
+    noAddress,
+    betweenStreet,
+    referencia,
+    observation,
+    stateId,
+    coloniaId,
+    cityId,
+  }) {
+    const columns = [
+      new TableColumn("id", id),
+      new TableColumn("cliente_id", clienteId),
+      new TableColumn("street", street),
+      new TableColumn("no_address", noAddress),
+      new TableColumn("between_street", betweenStreet),
+      new TableColumn("referencia", referencia),
+      new TableColumn("observation", observation),
+      new TableColumn("state_id", stateId),
+      new TableColumn("colonia_id", coloniaId),
+      new TableColumn("city_id", cityId),
+    ];
+    return createInsert(columns, "address");
+  }
+  static createUpdate(condition = "id = id", {
+    id,
+    clienteId,
+    street,
+    noAddress,
+    betweenStreet,
+    referencia,
+    observation,
+    stateId,
+    coloniaId,
+    cityId,
+  }) {
+    // Crear instancias de TableColumn para cada propiedad del objeto de datos
+    const columns = [
+      new TableColumn("id", id),
+      new TableColumn("cliente_id", clienteId),
+      new TableColumn("street", street),
+      new TableColumn("no_address", noAddress),
+      new TableColumn("between_street", betweenStreet),
+      new TableColumn("referencia", referencia),
+      new TableColumn("observation", observation),
+      new TableColumn("state_id", stateId),
+      new TableColumn("colonia_id", coloniaId),
+      new TableColumn("city_id", cityId),
+    ];
 
-  static async deleteById(id) {
-    const sql = `DELETE FROM addres WHERE id = ?`;
-    return (await db).runAsync(sql, [id])
+    // Llamar a createUpdate para construir la consulta y los parámetros
+    return createUpdate(columns, "address", condition);
   }
 }
 
-
-
-
-async function getStateColoniaAndCity({ state, colonia, city }) {
-  const query = `
-    SELECT 
-      (SELECT id FROM state WHERE state = ?) AS stateId,
-      (SELECT id FROM colonia WHERE colonia = ?) AS coloniaId,
-      (SELECT id FROM city WHERE city = ?) AS cityId
-  `;
-  try {
-    const { stateId, coloniaId, cityId } = await (await db).getFirstAsync(query, [state, colonia, city]);
-
-    // Verificar y ajustar los IDs obtenidos según sea necesario
-    const verifiedStateId = state ? await verifyIdsData(stateId, new StateRepository(state)) : null;
-    const verifiedColoniaId = colonia ? await verifyIdsData(coloniaId, new ColoniaRepository(colonia)) : null;
-    const verifiedCityId = city ? await verifyIdsData(cityId, new CityRepository(city)) : null;
-
-    return { stateId: verifiedStateId, coloniaId: verifiedColoniaId, cityId: verifiedCityId };
-  } catch (error) {
-    console.error('Error en getAddresData:', error);
-    throw error; // Opcional: relanzar el error para manejo superior
-  }
-}
-
-export { AddresRepository, StateRepository, ColoniaRepository, CityRepository }
+export { AddressRepository , CityTable, ColoniaTable, StateTable };

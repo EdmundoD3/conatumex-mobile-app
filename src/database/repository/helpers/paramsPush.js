@@ -18,8 +18,11 @@ class TableColumn {
     return this._column;
   }
 
-  get where() {
-    return `${this._column} LIKE %?%`;
+  get whereLike() {
+    return `${this._column} LIKE "%?%"`;
+  }
+  get whereEqueal() {
+    return `${this._column} = "?"`;
   }
 
   get conditional() {
@@ -31,8 +34,27 @@ class TableColumn {
   }
 }
 
-function getParams(columns = [new TableColumn("column", "data column", "and")]) {
-  return columns.filter(column => column.exists()).map(column => column.get());
+function whereParams(columns = [new TableColumn("column", "data column", "and")]) {
+  const params = [];
+  let whereParams = "";
+  const length = columns.length;
+
+  columns.forEach((column, index) => {
+    if (column.exists()) {
+      whereParams += column.whereLike + (index < length - 1 ? column.conditional : "");
+      params.push(`${column.data}`); // Añade los datos con % para LIKE
+    }
+  });
+
+  // Remover condicional sobrante al final
+  whereParams = whereParams.trim();
+  if (whereParams.endsWith("and")) {
+    whereParams = whereParams.slice(0, -3);
+  } else if (whereParams.endsWith("or")) {
+    whereParams = whereParams.slice(0, -2);
+  }
+
+  return { whereParams, params };
 }
 
 function createWhere(columns = [new TableColumn("column", "data column", "and")]) {
@@ -41,13 +63,13 @@ function createWhere(columns = [new TableColumn("column", "data column", "and")]
   const length = columns.length;
 
   columns.forEach((column, index) => {
-    whereParams += column.where + (index < length - 1 ? column.conditional : "");
+    whereParams += column.whereLike + (index < length - 1 ? column.conditional : "");
     params.push(column.data);
   });
   return { whereParams, params };
 }
 
-function createInsert(columns, tableName) {
+function createInsert(columns=[], tableName='') {
   // Filtrar las columnas que tienen datos válidos
   const validColumns = columns.filter(col => col.data !== undefined && col.data !== null && col.data !== "");
 
@@ -67,7 +89,8 @@ function createInsert(columns, tableName) {
   return { query, queryParams };
 }
 
-function createUpdate(columns, tableName, condition) {
+
+function createUpdate(columns=[new TableColumn("column", "data column", "and")], tableName, condition = "id = id") {
   // Filtrar las columnas que tienen datos válidos
   const validColumns = columns.filter(col => col.data !== undefined && col.data !== null && col.data !== "");
 
@@ -86,4 +109,4 @@ function createUpdate(columns, tableName, condition) {
   return { query, queryParams };
 }
 
-export { TableColumn, getParams, createWhere,createInsert,createUpdate };
+export { TableColumn, whereParams, createWhere,createInsert,createUpdate };

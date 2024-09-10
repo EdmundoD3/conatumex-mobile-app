@@ -1,6 +1,6 @@
 import errorHandler from '../../../error/errorHandler';
 import getSessionId from './getSessionId';
-import { startDatabase } from '../../../database/startDb';
+import { startDatabase, deleteDatabase } from '../../../database/startDb';
 import { fetchLogin } from '../../../services/auth';
 
 const handleLoginEvent = async ({ username, password, login, logout, setLoad }) => {

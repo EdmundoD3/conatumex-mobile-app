@@ -1,5 +1,7 @@
 import { URL_LOGIN, URL_REFRESH_TOKEN } from "../constants/url";
+import { AuthenticationError } from "../error/typeErrors";
 import { fetchWithTimeout } from "../helpers/fetchWithTimeOut";
+import { Token } from "../models/UserSession";
 
 class PostLogin {
   constructor({ username, password, key }) {
@@ -39,13 +41,14 @@ const fetchLogin = async ({ username, password, key }) => {
   }
 };
 
-const fetchRefreshToken = async ({ token, key }) => {
+const fetchRefreshToken = async ({ token= new Token({token:"",expiryDate:new Date}), key }) => {
   try {
+    const tokenheader = token.getToken()
     const response = await fetchWithTimeout(URL_REFRESH_TOKEN, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "token": token,
+        "token": tokenheader,
         "key": key
       }
     });

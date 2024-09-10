@@ -1,3 +1,7 @@
+import * as SQLite from "expo-sqlite";
+const db = SQLite.openDatabaseAsync("conatumex");
+
+
 class SingleValueTableBase {
   constructor(tableName, { id }) {
     this.tableName = tableName;
@@ -12,7 +16,6 @@ class SingleValueTableBase {
     try {
       return await (await db).getFirstAsync(sql, queryParams);
     } catch (error) {
-      console.error(`Error fetching from ${this.tableName}:`, error);
       throw error;
     }
   }
@@ -27,16 +30,15 @@ class SingleValueTableBase {
     try {
       return await (await db).runAsync(query, values);
     } catch (error) {
-      console.error(`Error saving to ${this.tableName}:`, error);
       throw error;
     }
   }
 
-  async getOrSave(column, value, columns, values) {
-    const item = await this.get(column, value);
+  async getOrSave(columns, values) {
+    const item = await this.get(columns[1], values[1]);
     if (item) return item;
     await this.save(columns, values);
-    return await this.get(column, value);
+    return await this.get(columns[1], values[1]);
   }
 
   static async saveAll(tableName, items = [], columns = []) {
@@ -48,7 +50,6 @@ class SingleValueTableBase {
         })
       );
     } catch (error) {
-      console.error(`Error saving all to ${tableName}:`, error);
       throw error;
     }
   }

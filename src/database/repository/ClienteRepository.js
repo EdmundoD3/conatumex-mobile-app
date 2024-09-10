@@ -1,135 +1,128 @@
 import * as SQLite from "expo-sqlite";
-import { IOneDataSQLRepository, IRepository } from "./Interface";
-import verifyIdsData from "../helper/verifyIdsData";
-import { MissingDataError } from "../../error/typeErrors";
+import SingleValueTableBase from "./base/singleValueTableBase";
+import { createInsert, createUpdate, TableColumn, whereParams } from "./helpers/paramsPush";
 
 // https://docs.expo.dev/versions/latest/sdk/sqlite/
 const db = SQLite.openDatabaseAsync("conatumex");
 
-class VendedorTable extends BaseTable {
-  constructor({ id, vendedor }) {
-    super('vendedor', { id });
-    this.vendedor = vendedor;
+
+class ClienteRepository extends SingleValueTableBase {
+  constructor({ id, name, email, phone, date, comments, statusId }) {
+    super("cliente", { id });
+    this.name = name;
+    this.email = email;
+    this.phone = phone;
+    this.date = date;
+    this.comments = comments;
+    this.statusId = statusId;
   }
 
   async save() {
-    return await super.save(['id', 'vendedor'], [this.id, this.vendedor]);
+    const columns = ["id", "name", "email", "phone", "date", "comments", "status_id"];
+    const values = [this.id, this.name, this.email, this.phone, this.date, this.comments, this.statusId];
+    return await super.save(columns, values);
   }
 
   async getOrSave() {
-    return await super.getOrSave('vendedor', this.vendedor, ['id', 'vendedor'], [this.id, this.vendedor]);
+    const columns = ["id", "name", "email", "phone", "date", "comments", "status_id"];
+    const values = [this.id, this.name, this.email, this.phone, this.date, this.comments, this.statusId];
+    return await super.getOrSave(columns, values);
   }
 
-  static async saveAll(vendedores = []) {
-    return await BaseTable.saveAll('vendedor', vendedores, ['id', 'vendedor']);
+  static async saveAll(clientes = []) {
+    const columns = ["id", "name", "email", "phone", "date", "comments", "status_id"];
+    return await SingleValueTableBase.saveAll("cliente", clientes, columns);
   }
-}
-
-class Status extends IOneDataSQLRepository {
-  constructor(status) {
-    super("status", "status", status);
+  static async getById(id){
+    const source = `Select * from cliente where id = ?`
+    return await (await db).getFirstAsync(source, [id]);
   }
-}
+  static async get({ id, name, email, phone, date, comments, statusId }, conditional="and") {
+    const { params, whereParams } = this.createWhereParams({
+      id, name, email, phone, date, comments, statusId
+    }, conditional);
+    const source = "Select * from cliente where "+ whereParams
+    return await (await db).getAllAsync(source, params);
+  }
 
-class ClienteRepository extends IRepository {
-  static async getByName({ name }) {
+  static async getByText({ text, offset = 0, limit = 10 }) {
     const sql = `
-      SELECT * cliente WHERE name = ?;
+      SELECT cliente.id, cliente.name, cliente.phone, address.street, state.state, colonia.colonia
+      FROM cliente
+      JOIN address ON cliente.id = address.cliente_id
+      JOIN state ON address.state_id = state.id
+      JOIN colonia ON address.colonia_id = colonia.id
+      WHERE cliente.name LIKE ? OR cliente.phone LIKE ? OR address.street LIKE ?
+         OR state.state LIKE ? OR colonia.colonia LIKE ?
+      OFFSET ? LIMIT ?;
     `;
-    const queryParams = [name];
+    const queryParams = [`%${text}%`, `%${text}%`, `%${text}%`, `%${text}%`, `%${text}%`, offset, limit];
     return await (await db).runAsync(sql, queryParams);
   }
-  static async get({ text, offset = 0 }) {
-    const sql = `SELECT cliente.id, cliente.name, cliente.phone, address.street, state.state, colonia.colonia
-FROM cliente
-JOIN address ON cliente.id = address.cliente_id
-JOIN state ON address.state_id = state.id
-JOIN colonia ON address.colonia_id = colonia.id
-WHERE cliente.name LIKE '%?%'
-   OR cliente.phone LIKE '%?%'
-   OR address.street LIKE '%?%'
-   OR state.state LIKE '%?%'
-   OR colonia.colonia LIKE '%?%';`;
-    const queryParams = [text, text, text, text, text, offset];
-    return await (await db).runAsync(sql, queryParams);
-  }
+
   static async getForCobranzaDate() {
-    const sql = `SELECT cuenta.id, cliente.name, cuenta.credito, cuenta.abono, cuenta.date, cuenta.contado_date, cuenta.next_collection_date
-FROM cuenta
-JOIN cliente ON cuenta.cliente_id = cliente.id
-WHERE cuenta.is_active = 1
-ORDER BY cuenta.date ASC;`;
+    const sql = `
+      SELECT cuenta.id, cliente.name, cuenta.credito, cuenta.abono, cuenta.date, cuenta.contado_date, cuenta.next_collection_date
+      FROM cuenta
+      JOIN cliente ON cuenta.cliente_id = cliente.id
+      WHERE cuenta.is_active = 1
+      ORDER BY cuenta.date ASC;
+    `;
     return await (await db).runAsync(sql);
   }
-  static async getAll({ limit = 10, offset = 0 }) {
-    throw new Error("implementar getAll");
-  }
 
-  static async getByNameId(cliente_id) {
-    throw new Error("implementar getByClienteId");
-  }
-  static async saveNewData(clients = []) {
-    clients.map(({ name }) => [`('${name}')`, `()`]);
-    throw new Error("Implementar saveNewClient en ClientRepository");
-  }
-  static async create({
-    name,
-    email,
-    phone,
-    date = new Date(),
-    comments,
-    status,
-    vendedor,
-  }) {
-    const sql = `
-      INSERT INTO cliente (
-        name, email, phone, date, comments, status_id, vendedor_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?);
-    `;
-    try {
-      if (!name) throw new MissingDataError("name no incluido");
-      const { id: status_id } = await new Status(status).saveAndGet();
-      if (!status_id) throw new MissingDataError("status no incluido");
-      const { id: vendedor_id } = await new Vendedor(vendedor).saveAndGet();
-      if (!vendedor_id) throw new MissingDataError("vendedor no incluido");
-      const queryParams = [
-        name,
-        email,
-        phone,
-        date,
-        comments,
-        status_id,
-        vendedor_id,
-      ];
-      return (await (await db).runAsync(sql, queryParams)).lastInsertRowId;
-    } catch (error) {
-      throw error;
-    }
-  }
-  static async ArrayCreate(clientes = [{}]) {
-    const statusIds = uniqueData(clientes, "status");
-    const vendedorIds = uniqueData(clientes, "vendedor");
-    console.log({ statusIds, vendedorIds });
-  }
-  static async updateById({ id }) {
-    throw new Error("implementar updateById");
+  static async updateById(id, { name, email, phone, date, comments, statusId }) {
+    const { query, queryParams } = this.createUpdate({ name, email, phone, date, comments, statusId }, "id = ?");
+    queryParams.push(id)
+    return await (await db).runAsync(query, queryParams);
   }
 
   static async deleteById(id) {
-    throw new Error("implementar deleteById");
+    const sql = "DELETE FROM cliente WHERE id = ?";
+    const queryParams = [id];
+    return await (await db).runAsync(sql, queryParams);
+  }
+
+  static createWhereParams({ id, name, email, phone, date, comments, statusId }, conditional = "and") {
+    const preParams = [
+      new TableColumn("id", id, conditional),
+      new TableColumn("name", name, conditional),
+      new TableColumn("email", email, conditional),
+      new TableColumn("phone", phone, conditional),
+      new TableColumn("date", date, conditional),
+      new TableColumn("comments", comments, conditional),
+      new TableColumn("status_id", statusId, conditional)
+    ];
+
+    return whereParams(preParams);
+  }
+
+  static createInsert({ id, name, email, phone, date, comments, statusId }) {
+    const columns = [
+      new TableColumn("id", id),
+      new TableColumn("name", name),
+      new TableColumn("email", email),
+      new TableColumn("phone", phone),
+      new TableColumn("date", date),
+      new TableColumn("comments", comments),
+      new TableColumn("status_id", statusId)
+    ];
+    return createInsert(columns, "cliente");
+  }
+
+  static createUpdate({ id, name, email, phone, date, comments, statusId }, condition = "id = ?") {
+    const columns = [
+      new TableColumn("id", id),
+      new TableColumn("name", name),
+      new TableColumn("email", email),
+      new TableColumn("phone", phone),
+      new TableColumn("date", date),
+      new TableColumn("comments", comments),
+      new TableColumn("status_id", statusId)
+    ];
+    return createUpdate(columns, "cliente", condition);
   }
 }
 
-const uniqueData = (dataArray, nameParam = "id") => {
-  const res = [];
-  dataArray.reduce((acc, current) => {
-    const x = acc.find((item) => item[nameParam] === current[nameParam]);
-    if (!x) {
-      acc.push(current);
-      res.push(current[nameParam]);
-    }
-    return acc;
-  }, []);
-  return res;
-};
-export { Vendedor, Status, ClienteRepository };
+
+export { ClienteRepository };

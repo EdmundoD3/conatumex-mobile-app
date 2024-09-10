@@ -1,5 +1,5 @@
 class Token {
-  constructor({token, expiryDate}) {
+  constructor({token ="", expiryDate}) {
     this.token = token
     this.expiryDate = new Date(expiryDate) 
   }
