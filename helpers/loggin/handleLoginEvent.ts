@@ -1,9 +1,9 @@
-import { startDatabase } from "@/database/manageDatabase";
-import { fetchLogin } from "@/services/api/auth/loginAuth";
+import { startDatabase } from "@database/manageDatabase";
+import { fetchLogin } from "@services/api/auth/loginAuth";
 import getSessionId from "@helpers/loggin/getSessionId";
 import errorHandler from "@error/errorHandler";
 import { UserSession } from "../models/userProviderDataModel";
-import { LoginRequest } from "@/services/api/models/LoginRequest";
+import { LoginRequest } from "@services/api/models/LoginRequest";
 
 interface LoginEventProps {
   username: string;

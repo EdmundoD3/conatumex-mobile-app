@@ -1,7 +1,7 @@
 import { AuthenticationError, TokenExpiredError } from "@error/typeErrors";
 import { AdminUserStorage } from "@database/AdminUserStorage";
 import errorHandler from "@error/errorHandler";
-import { UserData } from "@/models/userProviderDataModel";
+import { UserData } from "@models/userProviderDataModel";
 const initializeAuth = async ({setTheme,setIsLoading,setUserData}) => {
   try {
     const storedUser = await AdminUserStorage.get();

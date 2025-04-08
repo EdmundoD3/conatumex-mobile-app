@@ -1,19 +1,17 @@
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { Link } from "expo-router";
+import { ScrollContainer, ViewContainer } from "@ui/Container/ContainerComponents";
+import { LinkRouter } from "@/components/ui/Link/LinksComponents";
+import { TextTitle } from "@/components/ui/texts/TextComponents";
 import { StyleSheet } from "react-native";
 
 export default function ClientSearch() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
+    <ScrollContainer
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <Link href={{ pathname: '../cuentas' }}>Go to Details</Link>
-      </ThemedView>
-    </ParallaxScrollView>
+      <ViewContainer style={styles.titleContainer}>
+        <TextTitle>Welcome!</TextTitle>
+        <LinkRouter href={{ pathname: '../cuentas' }}>Go to Details</LinkRouter>
+      </ViewContainer>
+    </ScrollContainer>
   );
 }
 const styles = StyleSheet.create({

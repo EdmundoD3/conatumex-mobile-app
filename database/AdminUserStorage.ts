@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Token, UserSession } from '@/models/userProviderDataModel';
-import { fetchRefreshToken } from '@/services/authService';
+import { Token, UserSession } from '@models/userProviderDataModel';
+import { fetchRefreshToken } from '@services/authService';
 import { keyStorage } from '@constants/keyStorage';
 import { DataExistsError, TokenExpiredError, ValidationError } from '@error/typeErrors';
 

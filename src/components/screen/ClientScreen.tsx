@@ -1,5 +1,5 @@
 // import ParallaxScrollView from "@/src/components/ParallaxScrollView";
-import { ScrollContainer } from "../components/ui/Container/ContainerComponents";
+import { ScrollContainer } from "@ui/Container/ContainerComponents";
 
 export default function ClientScreen() {
   return <ScrollContainer

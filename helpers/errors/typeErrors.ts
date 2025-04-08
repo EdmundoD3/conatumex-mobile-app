@@ -97,5 +97,6 @@ export {
   DataExistsError,
   MissingDataError, NetworkError,
   ValidationError, LoginError,
-  TimeoutError, TokenExpiredError,SessionError
+  TimeoutError, TokenExpiredError,SessionError,
+  BaseError
 };

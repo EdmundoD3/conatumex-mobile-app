@@ -1,7 +1,7 @@
-import { fetchLogin, fetchRefreshToken } from "@/services/api/auth/loginAuth";
-import { LoginRequest } from "@/services/api/models/LoginRequest";
-import { SecondaryButton } from "@/src/components/ui/Buttons/CustomButtons";
-import { Collapsible } from "@/src/components/ui/Container/Collapsible";
+import { fetchLogin, fetchRefreshToken } from "@services/api/auth/loginAuth";
+import { LoginRequest } from "@services/api/models/LoginRequest";
+import { SecondaryButton } from "@/components/ui/Buttons/CustomButtons";
+import { Collapsible } from "@/components/ui/Container/Collapsible";
 import { TextTitle } from "@ui/texts/TextComponents";
 
 const loginFuncional = {

@@ -1,8 +1,8 @@
-import { URL_GET_ALL_PURCHASES, URL_GET_LAST_DATE_UPDATE, URL_UPDATE_PURCHASE } from "../constants/url";
-import SyncDateHandler from "../database/updateDate";
-import { AuthenticationError } from "../error/typeErrors";
-import { fetchWithTimeout } from "../helpers/fetchWithTimeOut";
-import { Token } from "../models/UserSession";
+import { URL_GET_ALL_PURCHASES, URL_GET_LAST_DATE_UPDATE, URL_UPDATE_PURCHASE } from "@constants/urls";
+import SyncDateHandler from "@database/helpers/updateDate";
+import { AuthenticationError } from "@error/typeErrors";
+import { fetchWithTimeout } from "@helpers/network/fetchWithTimeOut";
+import { Token } from "@models/userProviderDataModel";
 
 
 const fetchGetAllPurchases = async ({ token = new Token({ token: "", expiryDate: new Date }) }) => {

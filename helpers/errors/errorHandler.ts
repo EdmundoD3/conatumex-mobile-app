@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import { BaseError } from "./typeErrors";
+import { BaseError } from "@error/typeErrors";
 
 
 const showAlert = (error: BaseError): void => {
@@ -20,5 +20,5 @@ const errorHandler = (error: BaseError): void => {
   console.log("errorHandler:", error);
   showAlert(error);
 };
-
+export {showAlert}
 export default errorHandler;

@@ -1,7 +1,7 @@
 import { PropsWithChildren, useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
-import { IconSymbol } from "@/src/components/ui/IconSymbol";
+import { IconSymbol } from "@/components/navigation/IconSymbol";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ViewContainer } from "./ContainerComponents";

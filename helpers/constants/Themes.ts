@@ -1,10 +1,13 @@
-type ColorTheme = {
+export type ColorTheme = {
   text: string;
   background: string;
   tint: string;
   icon: string;
   tabIconDefault: string;
   tabIconSelected: string;
+  card:string;
+  shadow:string;
+  primary:string;
 };
 
 // Definimos el objeto Colors, que contendrá los temas claro y oscuro
@@ -29,16 +32,18 @@ const colors: { light: ColorTheme; dark: ColorTheme } = {
 
 export const themes = {
   dark: {
-    color: colors.dark.text,
-    backgroundColor: colors.dark.background,
+    colors:colors.dark
+    // color: colors.dark.text,
+    // backgroundColor: colors.dark.background,
     
   },
   light: {
-    color: colors.light.text,
-    backgroundColor: colors.light.background, // Cambia 'colors.light.text' por 'colors.light.background'
+    colors:colors.light
+    // color: colors.light.text,
+    // backgroundColor: colors.light.background, // Cambia 'colors.light.text' por 'colors.light.background'
   },
 };
 
 type Theme = "dark" | "light";
 
-export const getStyles = (theme: Theme) => themes[theme] || themes.light; // Devuelve "light" si el tema no existe
+export const getTheme = (theme: Theme) => themes[theme] || themes.light; // Devuelve "light" si el tema no existe

@@ -11,7 +11,7 @@ import {
   Animated,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor"; // Asegúrate de que el hook esté importado
-import { getBoxShadow } from "@/helpers/constants/baseStyles";
+import { getBoxShadow } from "@helpers/constants/baseStyles";
 
 type CustomViewProps = ViewProps & {
   children: React.ReactNode;
@@ -20,6 +20,7 @@ type CustomViewProps = ViewProps & {
 type CustomScrollViewProps = ScrollViewProps & {
   children: React.ReactNode;
 };
+
 
 export const ViewContainer: React.FC<CustomViewProps> = ({
   children,
@@ -168,6 +169,14 @@ export const ViewRow: React.FC<CustomViewProps> = ({
   );
 };
 
+export const CenteredView: React.FC<CustomViewProps> = ({ children, style, ...props }) => {
+  return (
+    <View style={[styles.centered, style]} {...props}>
+      {children}
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     padding: 12,
@@ -203,5 +212,11 @@ const styles = StyleSheet.create({
     padding: 8,
     margin: 0,
     alignItems: "flex-start",
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff", // Puedes personalizar este color según tu diseño
   },
 });

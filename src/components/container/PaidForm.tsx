@@ -9,8 +9,8 @@ import { InputMoney, InputText } from "@ui/inputs/InputText";
 import { InputDate } from "@ui/inputs/InputDate";
 import { ModalContainer } from "@ui/Container/ModalContainer";
 import { SimulatedInputButton } from "@ui/Buttons/SimulatedInputButton";
-import { ValidationError } from "@/helpers/errors/typeErrors";
-import { showAlert } from "@/helpers/errors/errorHandler";
+import { ValidationError } from "@helpers/errors/typeErrors";
+import { showAlert } from "@helpers/errors/errorHandler";
 import { KeyboardAvoidingContainer } from "@ui/Container/ContainerComponents";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

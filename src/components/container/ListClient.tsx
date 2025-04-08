@@ -7,9 +7,9 @@ import {
   Linking,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { DateText }  from "@/src/components/ui/texts/ListClientText";
+import { DateText }  from "@ui/texts/ListClientText";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { TextParagraph } from "@/src/components/ui/texts/TextComponents";
+import { TextParagraph } from "@ui/texts/TextComponents";
 export type TListClient = {
   id: string;
   name: string;

@@ -1,16 +1,15 @@
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+
+import { ScrollContainer, ViewContainer } from "@/components/ui/Container/ContainerComponents";
+import { TextGeneric } from "@/components/ui/texts/TextComponents";
 import { Image, StyleSheet } from "react-native";
 
 export default function settings() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}>
-      <ThemedView>
-        <ThemedText>Hola</ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollContainer>
+      <ViewContainer>
+        <TextGeneric>Hola</TextGeneric>
+      </ViewContainer>
+    </ScrollContainer>
   );
 }
 const styles = StyleSheet.create({

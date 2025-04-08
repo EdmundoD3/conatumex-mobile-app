@@ -1,7 +1,7 @@
 import { LoginRequest } from "@services/api/models/LoginRequest";
 import { LoginResponse } from "@services/api/models/LoginResponse";
 import apiClient from "@services/api/apiClient";
-import { apiUrl } from "@/helpers/constants/urls";
+import { apiUrl } from "@helpers/constants/urls";
 
 
 export const fetchLogin = async (

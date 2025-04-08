@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
-import ListClient, { TListClient } from "@components/container/ListClient";
-import ClientProfileCard from "@components/container/ClientProfileCard";
-import { useAuthContext } from "@/src/context/AuthContext";
+import ListClient, { TListClient } from "@/components/container/ListClient";
+import ClientProfileCard from "@/components/container/ClientProfileCard";
+import { useAuthContext } from "@/context/AuthContext";
 import { DangerButton, OutlineButton } from "@ui/Buttons/CustomButtons";
-import PaidForm from "@components/container/PaidForm";
+import PaidForm from "@/components/container/PaidForm";
 import {
   KeyboardAvoidingContainer,
   ScrollContainer,

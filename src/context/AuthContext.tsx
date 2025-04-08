@@ -1,17 +1,17 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { Token, UserData, UserSession } from "@/models/userProviderDataModel";
+import { Token, UserData, UserSession } from "@helpers/models/userProviderDataModel";
 import { AdminUserStorage } from "@database/AdminUserStorage";
 import errorHandler from "@error/errorHandler";
 import { DataExistsError } from "@error/typeErrors";
 import initializeAuth from "./helper/initializeAuth";
 
-export type AuthLoginType = {userSession: UserSession, key:string}
+// export type AuthLoginType =  UserSession
 
 // Definir tipos para el contexto y props
 interface AuthContextProps {
   userData: UserData;
   isLoading: boolean;
-  login: ({ userSession, key }: {userSession: UserSession, key:string}) => Promise<void>;
+  login: (userSession: UserSession) => Promise<void>;
   logout: () => Promise<void>;
   setTheme: (theme: string) => void;
   theme: string;
@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const patchUserData = (newData = {}) =>
     setUserData(prevData => new UserData({ ...prevData, ...newData }));
 
-  const login = async ({ userSession, key }: AuthLoginType) => {
+  const login = async ( userSession : UserSession) => {
     setIsLoading(true);
     try {
       await AdminUserStorage.set(userSession);

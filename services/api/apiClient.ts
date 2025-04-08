@@ -1,5 +1,5 @@
-import { NetworkError } from "@/helpers/errors/typeErrors";
-import { fetchWithTimeout } from "@/helpers/network/fetchWithTimeOut";
+import { NetworkError } from "@helpers/errors/typeErrors";
+import { fetchWithTimeout } from "@helpers/network/fetchWithTimeOut";
 
 const apiClient = async (url: string, options: RequestInit) => {
   const response = await fetchWithTimeout(url, {

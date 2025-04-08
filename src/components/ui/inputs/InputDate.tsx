@@ -4,7 +4,7 @@ import { Calendar, LocaleConfig } from "react-native-calendars";
 import { useThemeColor } from "@/hooks/useThemeColor"; // Asegúrate de importar correctamente
 import moment from "moment"; // Importar moment para manejar localización
 import "moment/locale/es"; // Cargar la localización en español
-import { showAlert } from "@/helpers/errors/errorHandler";
+import { showAlert } from "@helpers/errors/errorHandler";
 // Configurar manualmente el idioma en español
 LocaleConfig.locales["es"] = {
   monthNames: [

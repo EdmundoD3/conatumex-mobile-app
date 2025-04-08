@@ -10,9 +10,9 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useAuthContext } from "@/src/context/AuthContext";
+import { useAuthContext } from "@/context/AuthContext";
 import { eventManager } from "@helpers/eventManager";
-import handleLoginEvent from "@/helpers/loggin/handleLoginEvent";
+import handleLoginEvent from "@helpers/loggin/handleLoginEvent";
 import { Token, UserSession } from "@helpers/models/userProviderDataModel";
 
 interface UserData {

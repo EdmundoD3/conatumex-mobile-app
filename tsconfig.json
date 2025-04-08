@@ -10,7 +10,10 @@
       "@constants/*": ["./helpers/constants/*"],
       "@error/*": ["./helpers/errors/*"],
       "@helpers/*": ["./helpers/*"],
-      "@screens/*": ["./src/screen/*"]
+      "@screens/*": ["./src/components/screen/*"],
+      "@ui/*":["./src/components/ui/*"],
+      "@services/*":["./services/*"],
+      "@models/*":["./helpers/models/*"]
     }
   },
   "include": [

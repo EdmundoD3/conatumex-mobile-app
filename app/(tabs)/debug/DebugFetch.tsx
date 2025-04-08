@@ -1,13 +1,13 @@
 import {
   fetchActualizeData,
-} from "@/services/api/cobranza/actualize-data";
-import { ActualizeCobradorDataRequest, Payments } from "@/services/api/models/ActualizeCobradorRequest";
-import { DebugLoging } from "@/src/components/screen/debug/debugFetchLogin";
-import { SecondaryButton } from "@/src/components/ui/Buttons/CustomButtons";
-import { Collapsible } from "@/src/components/ui/Container/Collapsible";
-import { ScrollContainer } from "@/src/components/ui/Container/ContainerComponents";
-import { FakeConsole } from "@/src/components/ui/Container/FakeConsole";
-import { TextTitle } from "@/src/components/ui/texts/TextComponents";
+} from "@services/api/cobranza/actualize-data";
+import { ActualizeCobradorDataRequest, Payments } from "@services/api/models/ActualizeCobradorRequest";
+import { DebugLoging } from "@/components/screen/debug/debugFetchLogin";
+import { SecondaryButton } from "@ui/Buttons/CustomButtons";
+import { Collapsible } from "@ui/Container/Collapsible";
+import { ScrollContainer } from "@ui/Container/ContainerComponents";
+import { FakeConsole } from "@ui/Container/FakeConsole";
+import { TextTitle } from "@ui/texts/TextComponents";
 import { useState } from "react";
 
 const payment = new Payments({amount:5000,date: new Date(),receiptId:"asgfaklsfgi"})

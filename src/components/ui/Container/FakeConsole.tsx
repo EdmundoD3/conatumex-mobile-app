@@ -2,7 +2,7 @@ import {
   TextBold,
   TextParagraph,
   TextTitle,
-} from "@/src/components/ui/texts/TextComponents";
+} from "@ui/texts/TextComponents";
 import { useState } from "react";
 import { TouchableOpacity } from "react-native";
 
