@@ -2,14 +2,14 @@ import React from "react";
 import { View, StyleSheet, TouchableOpacity, Animated } from "react-native";
 
 import Svg, { Path } from "react-native-svg";
-import { TextParagraph, TextTitle } from "@/src/components/ui/texts/TextComponents";
+import { TextParagraph, TextTitle } from "@ui/texts/TextComponents";
 import {
   AnimatedContainer,
   ViewContainer,
   ViewSubContainer,
 } from "../ui/Container/ContainerComponents";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import TablePaid from "@components/container/PaidTables";
+import TablePaid from "@/components/container/PaidTables";
 
 const data = [
   {

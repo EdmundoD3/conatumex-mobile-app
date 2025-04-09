@@ -4,14 +4,20 @@ import React from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '../../helpers/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const {colors}=useThemeColor()
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: colors.tint,
+        headerBackgroundContainerStyle:{backgroundColor:colors.background},
+        // headerTintColor:colors.background,
+        // headerBackgroundContainerStyle:{backgroundColor:colors.background},
+        tabBarInactiveBackgroundColor:colors.background,
+        tabBarActiveBackgroundColor:colors.background,
         headerShown: true,
       }}>
       <Tabs.Screen
@@ -48,6 +54,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'bug' : 'bug-outline'} color={color} />
           ),
+          headerShown:false,
         }}
       />}
     </Tabs>

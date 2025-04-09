@@ -1,6 +1,4 @@
 import {
-  DarkTheme,
-  DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
@@ -16,22 +14,17 @@ import Login from "@screens/Login";
 SplashScreen.preventAutoHideAsync();
 
 function Main() {
-  const colorScheme = useColorScheme();
-  const { userData, isLoading } = useAuthContext();
+  const { userData, isLoading, theme } = useAuthContext();
 
   return (
     <>
       {isLoading ? (
         <Loading />
       ) : userData?.username?(
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
-        </ThemeProvider>
       ):
       <Login />
       }

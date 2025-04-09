@@ -6,7 +6,6 @@ const initializeAuth = async ({setTheme,setIsLoading,setUserData}) => {
   try {
     const storedUser = await AdminUserStorage.get();
     const storedTheme = await AdminUserStorage.getTheme();
-
     if (storedTheme) {
       setTheme(storedTheme);
     }

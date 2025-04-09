@@ -1,9 +1,21 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { Token, UserData, UserSession } from "@helpers/models/userProviderDataModel";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  Token,
+  UserData,
+  UserSession,
+} from "@helpers/models/userProviderDataModel";
 import { AdminUserStorage } from "@database/AdminUserStorage";
 import errorHandler from "@error/errorHandler";
 import { DataExistsError } from "@error/typeErrors";
 import initializeAuth from "./helper/initializeAuth";
+import { ColorTheme, Theme } from "@constants/Themes";
 
 // export type AuthLoginType =  UserSession
 
@@ -13,18 +25,19 @@ interface AuthContextProps {
   isLoading: boolean;
   login: (userSession: UserSession) => Promise<void>;
   logout: () => Promise<void>;
-  setTheme: (theme: string) => void;
-  theme: string;
+  // setTheme: (theme: "dark" | "light") => void;
+  toggleTheme:()=>void;
+  theme: Theme;
 }
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-const voidUserData = new UserData ({
+const voidUserData = new UserData({
   user: null,
   username: null,
-  token:null
+  token: null,
 });
 
 // // Definir el contexto con tipo
@@ -33,16 +46,16 @@ const AuthContext = createContext<AuthContextProps | null>(null);
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [userData, setUserData] = useState(new UserData(voidUserData));
   const [isLoading, setIsLoading] = useState(true);
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState<"dark" | "light">("light");
 
   useEffect(() => {
     initializeAuth({ setTheme, setIsLoading, setUserData });
   }, []);
 
   const patchUserData = (newData = {}) =>
-    setUserData(prevData => new UserData({ ...prevData, ...newData }));
+    setUserData((prevData) => new UserData({ ...prevData, ...newData }));
 
-  const login = async ( userSession : UserSession) => {
+  const login = async (userSession: UserSession) => {
     setIsLoading(true);
     try {
       await AdminUserStorage.set(userSession);
@@ -66,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const updateTheme = (newTheme: string) => {
+  const updateTheme = (newTheme: "dark"|"light") => {
     if (newTheme !== 'dark' && newTheme !== 'light') return;
     setTheme(newTheme);
     try {
@@ -75,11 +88,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       errorHandler(error);
     }
   };
+  const toggleTheme = () => {
+    updateTheme(theme === "dark" ? "light" : "dark");
+  };
 
-  const memoizedTheme = useMemo(() => theme, [theme]);
+  const memoizedTheme = useMemo<Theme>(() => theme, [theme]);
 
   return (
-    <AuthContext.Provider value={{ userData, isLoading, login, logout, setTheme: updateTheme, theme: memoizedTheme }}>
+    <AuthContext.Provider
+      value={{
+        userData,
+        isLoading,
+        login,
+        logout, //setTheme: updateTheme,
+        toggleTheme,
+        theme: memoizedTheme,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -89,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 export const useAuthContext = (): AuthContextProps => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+    throw new Error("useAuthContext must be used within an AuthProvider");
   }
   return context;
 };

@@ -4,17 +4,21 @@ import {
   View,
   TextInput,
   Text,
-  StyleSheet,
   TouchableOpacity,
   FlatList,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  StyleSheet,
 } from "react-native";
 
 type CustomInputProps = {
   label?: string;
   placeholder?: string;
-  value?: string;
-  onChangeText?: (text: string) => void;
+  value: string;
+  onChangeText: (text: string) => void;
   secureTextEntry?: boolean;
+  style?:StyleProp<ViewStyle>;
 };
 
 export const InputText: React.FC<CustomInputProps> = ({
@@ -23,6 +27,7 @@ export const InputText: React.FC<CustomInputProps> = ({
   value,
   onChangeText,
   secureTextEntry = false,
+  style,
 }) => {
   const { colors } = useThemeColor();
   const coloredStyle = {
@@ -31,7 +36,7 @@ export const InputText: React.FC<CustomInputProps> = ({
     color: colors.text,
   };
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
       <TextInput
         style={[styles.input, coloredStyle]}

@@ -3,6 +3,7 @@ import { Token, UserSession } from '@models/userProviderDataModel';
 import { fetchRefreshToken } from '@services/authService';
 import { keyStorage } from '@constants/keyStorage';
 import { DataExistsError, TokenExpiredError, ValidationError } from '@error/typeErrors';
+import { listOfThemes } from '@constants/Themes';
 
 
 
@@ -21,7 +22,7 @@ export class AdminUserStorage {
     return theme || "dark"
   }
   static async setTheme(theme = "") {
-    const existTheme = ["dark", "white"].find(t => theme == t)
+    const existTheme = listOfThemes.find(t => theme == t)
     if (!existTheme) throw new ValidationError("Tema no existente")
     return await AsyncStorage.setItem(keyStorage.theme, theme)
   }
