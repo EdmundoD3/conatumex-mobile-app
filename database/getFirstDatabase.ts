@@ -2,7 +2,7 @@ import SyncDateHandler from "./helpers/updateDate";
 import { AdminUserStorage } from "./AdminUserStorage";
 import { CustomerRequestSquema } from "./models/customer";
 import { PurchaseRequestSquema } from "./models/purchase";
-import { fetchGetAllPurchases } from "@/services/clients";
+import { fetchGetAllPurchases } from "@services/clients";
 import db from "./sqlite";
 import { DatabaseError, SessionError } from "@error/typeErrors";
 

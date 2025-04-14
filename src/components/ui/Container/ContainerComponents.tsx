@@ -181,6 +181,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 12,
     margin: 0,
+    marginBottom:16,
     borderRadius: 5,
   },
   scrollContainer: {

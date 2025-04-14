@@ -1,6 +1,151 @@
 import { DatabaseError } from "@error/typeErrors";
 import db from "./sqlite";
 
+// Tipos base
+export type ID = string | number;
+export type DateTimeString = string; // formato 'YYYY-MM-DD HH:MM:SS'
+export type DateString = string; // formato 'YYYY-MM-DD'
+
+// Tipos para tablas individuales
+export interface State {
+  id: string;
+  state: string;
+}
+
+export interface Colonia {
+  id: string;
+  colonia: string;
+}
+
+export interface City {
+  id: string;
+  city: string;
+}
+
+export interface Address {
+  id?: number;
+  cliente_id: string;
+  street?: string | null;
+  no_address?: string | null;
+  between_street?: string | null;
+  referencia?: string | null;
+  observation?: string | null;
+  state_id?: string | null;
+  colonia_id: string;
+  city_id: string;
+}
+
+export interface Status {
+  id: string;
+  status: string;
+}
+
+export interface Cliente {
+  id: string;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  date: DateString;
+  comments?: string | null;
+  status_id: string;
+}
+
+export interface Pago {
+  id?: number;
+  cuenta_id: number;
+  pago: number;
+  date: DateTimeString;
+}
+
+export interface Producto {
+  id?: number;
+  producto: string;
+  contado?: number | null;
+  credito?: number | null;
+}
+
+export interface Compra {
+  id?: number;
+  producto_id: number;
+  cuenta_id: string;
+  cantidad: number;
+}
+
+export interface User {
+  id: string;
+  user: string;
+}
+
+export interface CollectionFrequency {
+  cuenta_id: string;
+  amount: string;
+  frequency: string;
+}
+
+export interface Cuenta {
+  id: string;
+  vendedor_id: string;
+  cobrador_id: string;
+  cliente_id: string;
+  credito: string;
+  contado?: string | null;
+  abono: string;
+  date: DateString;
+  contado_date: DateString;
+  next_collection_date: DateString;
+  is_change: number; // 0 o 1
+  no_cuenta?: string | null;
+  is_active: number; // 0 o 1
+}
+
+// Tipos para relaciones complejas
+export interface ClienteWithRelations extends Cliente {
+  address?: Address;
+  status?: Status;
+  cuentas?: Cuenta[];
+}
+
+export interface CuentaWithRelations extends Cuenta {
+  cliente?: Cliente;
+  vendedor?: User;
+  cobrador?: User;
+  pagos?: Pago[];
+  compras?: CompraWithRelations[];
+  collection_frequency?: CollectionFrequency;
+}
+
+export interface CompraWithRelations extends Compra {
+  producto?: Producto;
+}
+
+// Tipos para resultados de consultas JOIN
+export interface CuentaJoinResult {
+  cuenta: Cuenta; // Ensure 'Cuenta' is used as a type and not as a value
+  cliente: Cliente;
+  vendedor: User;
+  cobrador: User;
+  status: Status;
+  address: Address;
+  city: City;
+  colonia: Colonia;
+  state?: State;
+}
+
+// Tipos para operaciones CRUD
+export type DatabaseTables = {
+  state: State;
+  colonia: Colonia;
+  city: City;
+  address: Address;
+  status: Status;
+  cliente: Cliente;
+  pagos: Pago;
+  producto: Producto;
+  compra: Compra;
+  users: User;
+  collection_frequency: CollectionFrequency;
+  cuenta: Cuenta; // Ensure 'Cuenta' is used as a type and not as a value
+};
 
 const stateTable = `CREATE TABLE IF NOT EXISTS state (
   id TEXT PRIMARY KEY,

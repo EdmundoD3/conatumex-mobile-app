@@ -2,9 +2,19 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Stack } from "expo-router";
 
 export default function CuentasLayOut() {
-  const {colors} =useThemeColor()
+  const { colors } = useThemeColor();
   return (
-    <Stack screenOptions={{headerStyle:{backgroundColor:colors.background,}, headerTitleStyle:{color:colors.text}, headerShown: true }}>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.background },
+        headerShadowVisible:true,
+        contentStyle:{shadowColor:colors.shadow},
+        // headerTitleStyle: {  },
+        headerTintColor: colors.text,
+        // headerBackButtonMenuEnabled:,
+        headerShown: true,
+      }}
+    >
       <Stack.Screen
         name="index"
         options={{

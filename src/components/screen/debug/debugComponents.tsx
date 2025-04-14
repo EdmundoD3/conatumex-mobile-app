@@ -40,7 +40,7 @@ export default function DebugComponentsScreen() {
         <InputText value={text} onChangeText={setText} label="Busca un cliente" style={styles.viewInput}/>
         {props.map(e=><ListClient {...e} key={e.id} />)}
         
-        <ClientProfileCard />
+        <ClientProfileCard client={props[0]}/>
       </ViewContainer>
       <ViewContainer>
         <PrimaryButton title="change theme" onPress={toggleTheme} />

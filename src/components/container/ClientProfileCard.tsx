@@ -60,9 +60,10 @@ const TextDirection = ({
   );
 };
 
-export default function ClientProfileCard() {
+export default function ClientProfileCard({client}) {
   const scaleValue = new Animated.Value(1);
   const { colors } = useThemeColor();
+  const {name, direction} = client
 
   // const handlePressIn = () => {
   //   Animated.spring(scaleValue, {
@@ -99,9 +100,9 @@ export default function ClientProfileCard() {
         </View> */}
 
         <View style={styles.infoContainer}>
-          <TextTitle style={styles.name}>ANNA WILSON</TextTitle>
+          <TextTitle style={styles.name}>{name}</TextTitle>
           {/* <Text style={styles.role}>DEVELOPER</Text> */}
-          <TextDirection />
+          <TextDirection {...direction}/>
           <TextPhone />
           <TextEmail />
         </View>

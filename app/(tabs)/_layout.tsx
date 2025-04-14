@@ -12,12 +12,15 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.tint,
+        tabBarActiveTintColor: colors.tabIconSelected,
         headerBackgroundContainerStyle:{backgroundColor:colors.background},
         // headerTintColor:colors.background,
         // headerBackgroundContainerStyle:{backgroundColor:colors.background},
         tabBarInactiveBackgroundColor:colors.background,
-        tabBarActiveBackgroundColor:colors.background,
+        tabBarActiveBackgroundColor:colors.card,
+        tabBarStyle:{borderColor:colors.shadow},
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.text,
         headerShown: true,
       }}>
       <Tabs.Screen

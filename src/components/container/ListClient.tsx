@@ -1,15 +1,14 @@
 import React from "react";
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
-  Linking,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { DateText }  from "@ui/texts/ListClientText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { TextParagraph } from "@ui/texts/TextComponents";
+import { router } from "expo-router";
 export type TListClient = {
   id: string;
   name: string;
@@ -46,13 +45,13 @@ export default function ListClient({ id, name, direction, date }: TListClient) {
     color = "#e4003a7a"; // Fecha pasada
   } else if (isSameDay(date, today)) {
     //blue
-    color = "#009ece7a"; // Hoy
+    color = "#04e4007a"; // Fecha futura
   } else {
     //green
-    color = "#04e4007a"; // Fecha futura
+    color = "#009ece7a"; // Hoy
   }
   const handlePress = () => {
-    // Linking.openURL(URL);
+  router.push({pathname:"/(tabs)/cuentas/clientes",params:{id}})
   };
   return (
     <TouchableOpacity
