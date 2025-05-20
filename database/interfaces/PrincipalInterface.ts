@@ -1,13 +1,8 @@
 
-// Interfaz base para documentos
-interface BaseEntity {
-  id: string | number; // ID de MongoDB
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 // Interfaces de usuario y autenticación
-export interface User extends BaseEntity {
+export interface User {
+  id:string;
   name: string;
   username: string;
   email?: string;
@@ -62,12 +57,15 @@ export interface Note {
   customerId:string;
   content: string;
   createdAt: string;
+  updatedAt:string;
   createdBy?: string;
   user?: User; // Populate
 }
 
 // Interfaces de cliente
-export interface Customer extends BaseEntity {
+export interface Customer {
+  id:string;
+  date:string;
   name: string;
   phone?: string;
   direction: Direction;
@@ -75,12 +73,13 @@ export interface Customer extends BaseEntity {
   status?: Status; // Populate
   cobradorId?: string;
   cobrador?: User; // Populate
-  purchases?: string[]; // IDs de compras
+  purchasesId?: string[]; // IDs de compras
   notes?: Note[];
 }
 
 // Interfaces de productos
-export interface Product extends BaseEntity {
+export interface Product {
+  id:string;
   name: string;
   price: number;
   description?: string;
@@ -98,7 +97,8 @@ export interface ProductItem {
 }
 
 // Interfaces de estado/status
-export interface Status extends BaseEntity {
+export interface Status {
+  id:string;
   name: string;
   type?: 'customer' | 'purchase' | 'payment';
   color?: string;
@@ -122,7 +122,9 @@ export interface CobradorHistorial {
 }
 
 // Interfaces de pagos
-export interface Payment extends BaseEntity {
+export interface Payment {
+  id:string;
+  createdAt:string;
   amount: number;
   date: string;
   method?: string;
@@ -134,7 +136,10 @@ export interface Payment extends BaseEntity {
 }
 
 // Interfaces de compras/ventas
-export interface Purchase extends BaseEntity {
+export interface Purchase {
+  id:string;
+  createdAt:string;
+  // updatedAt:string;
   customerId: string;
   customer?: Customer; // Populate
   vendedorId?: string;

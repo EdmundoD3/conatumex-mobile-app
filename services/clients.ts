@@ -37,7 +37,7 @@ const fetchGetAllPurchases = async ({ token = new Token({ token: "", expiryDate:
 
 const fetchLastDateUpdate = async ({ token = new Token({ token: "", expiryDate: new Date }) }) => {
   try {
-    const lastDateUpdate = await SyncDateHandler.getLastUpdateDate()
+    const lastDateUpdate = (await SyncDateHandler.getLastUpdateDate()).toDateString()
     const tokenheader = token.getToken()
 
     const response = await fetchWithTimeout(URL_GET_LAST_DATE_UPDATE, {
@@ -68,10 +68,10 @@ const fetchLastDateUpdate = async ({ token = new Token({ token: "", expiryDate: 
   }
 };
 
-const fetchUpdatePurchase = async ({ token = new Token({ token: "", expiryDate: new Date }), data }) => {
+const fetchUpdatePurchase = async ({ token, data }:{token:Token,data:}) => {
   try {
     const tokenheader = token.getToken()
-    const lastDateUpdate = await SyncDateHandler.getLastUpdateDate()
+    const lastDateUpdate = (await SyncDateHandler.getLastUpdateDate()).toDateString()
     const response = await fetchWithTimeout(URL_UPDATE_PURCHASE, {
       method: "POST",
       headers: {
@@ -88,14 +88,14 @@ const fetchUpdatePurchase = async ({ token = new Token({ token: "", expiryDate: 
       throw new AuthenticationError(errorMessage);
     }
 
-    const data = await response.json();
+    const res = await response.json();
 
-    if (!data || data.error) {
-      const errorMessage = data.error || 'Error al obtener las compras';
+    if (!res || res.error) {
+      const errorMessage = res.error || 'Error al obtener las compras';
       throw new AuthenticationError(errorMessage);
     }
 
-    return data;
+    return res;
   } catch (error) {
     throw error;
   }

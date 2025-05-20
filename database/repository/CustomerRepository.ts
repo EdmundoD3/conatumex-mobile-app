@@ -9,13 +9,18 @@ import {
 import { Customer } from "@database/interfaces/PrincipalInterface";
 import { SQLiteDatabase } from "expo-sqlite";
 import { StatusRepository } from "./StatusRepository";
-import { getDatabaseConnection } from "@database/sqlite";
 import { BaseRepository } from "./base/BaseRepository";
 
 export class CustomerRepository extends BaseRepository {
+  async create(customer: Customer) {
+    const db = await this.getDb();
+    await CustomerRepository.setInCustomerTable(customer, db);
+    await DirectionRepository.setInDirectionTable(customer.direction,customer.id,db)
 
-  getAllDataById(id:string){
-    return CustomerRepository.getAllDataById(id,this.db)
+  }
+  async getAllDataById(id: string) {
+    const db = await this.getDb();
+    return CustomerRepository.getAllDataById(id, db);
   }
   static async getAllDataById(
     id: string,
@@ -25,7 +30,12 @@ export class CustomerRepository extends BaseRepository {
     const direction = await DirectionRepository.getByCustomerId(id, db);
     const notes = await NotesRepository.getByCustomerId(id, db);
     const status = await StatusRepository.getStatusById(customers.statusId, db);
-    const res: Customer = { ...customers, direction, notes, status };
+    const res: Customer = {
+      ...customers,
+      direction,
+      notes,
+      status,
+    };
     return res;
   }
   static getById(id: string, db: SQLiteDatabase) {
@@ -33,6 +43,22 @@ export class CustomerRepository extends BaseRepository {
       id,
     ]);
   }
+  static setInCustomerTable(customer: TCustomer, db: SQLiteDatabase) {
+    return db.runAsync(
+      `INSERT INTO purchases (
+        id, name, cobradorId, phone, date, statusId
+      ) VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        customer.id,
+        customer.name,
+        customer.cobradorId,
+        customer.phone,
+        customer.date,
+        customer.statusId,
+      ]
+    );
+  }
+
 }
 
 export type DirectionResult = {
@@ -98,6 +124,39 @@ export class DirectionRepository {
     } catch (error) {
       throw new Error(`Failed to fetch direction: ${(error as Error).message}`);
     }
+  }
+  static setInDirectionTable(direction: Omit< TDireccion,"customerId">,customerId:string, db: SQLiteDatabase) {
+    return db.runAsync(
+      `INSERT INTO purchases (
+      customerId, calle, numeroCasa, coloniaId, estadoId, ciudadId, entreCalles, referencia,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        customerId,
+        direction.calle,
+        direction.numeroCasa,
+        direction.coloniaId,
+        direction.estadoId,
+        direction.ciudadId,
+        direction.entreCalles,
+        direction.referencia
+      ]
+    );
+  }
+  static async saveInColoniaTable(colonia:TColonia,db:SQLiteDatabase){
+    const coloniaData = await DirectionRepository.getColoniaById(colonia.id,db)
+    if(coloniaData)return coloniaData
+    return db.runAsync(
+      `INSERT INTO direction_colonia (
+      id, colonia
+      ) VALUES (?, ?)`,
+      [
+        colonia.id,
+        colonia.colonia
+      ]
+    );
+  }
+  static getColoniaById(id:string,db:SQLiteDatabase){
+    return db.getFirstAsync(`SELECT * FROM direction_colonia WHERE id = ?`,[id])
   }
 }
 

@@ -14,7 +14,6 @@ export type TCustomer = {
   phone?: string;
   date: string;
   statusId: string;
-  updatedAt: string;
 };
 const TableCustomer = `
       CREATE TABLE IF NOT EXISTS customers (
@@ -24,7 +23,6 @@ const TableCustomer = `
         phone TEXT,
         date TEXT NOT NULL,
         statusId TEXT NOT NULL,
-        updatedAt TEXT NOT NULL,
         FOREIGN KEY (statusId) REFERENCES statuses(id),
         FOREIGN KEY (cobradorId) REFERENCES users(id)
       );
@@ -97,6 +95,7 @@ export type TNotes = {
   customerId: string;
   content: string;
   createdAt: string;
+  updatedAt:string;
 };
 const TableNotes = `
       CREATE TABLE IF NOT EXISTS customer_notes (
@@ -104,6 +103,7 @@ const TableNotes = `
         customerId TEXT NOT NULL,
         content TEXT NOT NULL,
         createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
         FOREIGN KEY (customerId) REFERENCES customers(id) ON DELETE CASCADE
       );
     `;

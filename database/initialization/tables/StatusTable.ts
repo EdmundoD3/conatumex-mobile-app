@@ -1,7 +1,7 @@
 import { SQLiteDatabase } from "expo-sqlite";
 
 export type TStatus = {
-  id: number;
+  id: string;
   name:string;
 };
 export class StatusTable {

@@ -3,7 +3,7 @@ export type TPurchase = {
   id: string;
   customerId: string;
   vendedorId?: string;
-  collectorId: string;
+  cobradorId: string;
   saleDate: string;
   creditPrice: number;
   cashPrice: number;
@@ -12,9 +12,9 @@ export type TPurchase = {
   total: number;
   totalPaid: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   statusId: string;
-  isActive: number;
+  isActive: number | boolean;
 };
 
 const TablePurchase = `
@@ -41,17 +41,17 @@ const TablePurchase = `
 
 export type TCollectionFrequency = {
   purchaseId: string;
-  amount: number;
-  frequency: string | number;
-  nextVisit: string;
+  amount?: number;
+  frequency?: string | number;
+  nextVisit?: string;
 };
 
 export type TCollectorHistory = {
-  id: number;
+  id?: number;
   purchaseId: string;
   cobradorId: string;
   asignadoDesde: string;
-  asignadoHasta: string;
+  asignadoHasta?: string;
 };
 
 export type TPurchaseProduct = {

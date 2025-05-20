@@ -6,8 +6,9 @@ export class UserRepository extends BaseRepository {
   create(){
 
   }
-  getById(id:string){
-    return UserRepository.getById(id,this.db)
+  async getById(id:string){
+    const db = await this.getDb();
+    return UserRepository.getById(id,db)
   }
   static getById(id: string,db: SQLiteDatabase) {
     return db.getFirstAsync<TUser>(`SELECT * FROM users WHERE id = ?`, [
